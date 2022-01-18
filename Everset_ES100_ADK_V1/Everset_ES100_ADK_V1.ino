@@ -1,6 +1,6 @@
 /*
-This is the demonstration code for the UNIVERSAL-SOLDER / Everset ES100 
-Application Development Kit. It reads the decoded time stamp from 
+This is the demonstration code for the UNIVERSAL-SOLDER / Everset ES100
+Application Development Kit. It reads the decoded time stamp from
 the ES100MOD receiver module and shows several information on a 4x20
 character display. There are no function assignments for unused GPIO,
 analog inputs and the 3 push buttons included in this sketch.
@@ -9,7 +9,7 @@ Version: 1 (10/04/2020)
 
 PLEASE FEEL FREE TO CONTRIBUTE TO THE DEVELOPMENT. CORRECTIONS AND
 ADDITIONS ARE HIGHLY APPRECIATED. SEND YOUR COMMENTS OR CODE TO:
-support@universal-solder.ca 
+support@universal-solder.ca
 
 Please support us by purchasing products from UNIVERSAL-SOLDER.ca store!
 
@@ -43,6 +43,12 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <DS3231.h>
 #include <ES100.h>
 #include <Wire.h>
+
+
+#define VERSION     (0)
+#define ISSUE       (1)
+#define ISSUE_DATE  "2022-01-17"
+
 
 
 #define lcdRS 4
@@ -107,7 +113,7 @@ char * getISODateStr() {
   else
     result[8]=char((t.date / 10)+48);
   result[9]=char((t.date % 10)+48);
-  
+
   result[10]=84;
 
   if (t.hour<10)
@@ -154,7 +160,7 @@ void displayDST() {
 void displayNDST() {
   byte tmp = 0;
   lcd.print("NDST ");
-  
+
   tmp = nextDst.month;
   if (tmp < 10) { lcd.print("0"); }
   lcd.print(tmp);
@@ -360,28 +366,35 @@ void showlcd() {
 void setup() {
   Wire.begin();
   Serial.begin(9600);
+  Serial.print("\n\n");
+  Serial.print("-------------------------\n");
+  Serial.print("Everset ES100 ADK startup...\n");
+  Serial.print("-------------------------\n");
+  Serial.print("\n\n");
   es100.begin(es100Int, es100En);
   lcd.begin(20, 4);
   lcd.clear();
+  lcd.print("Everset ES100 ADK startup...");
+
   rtc.begin();
-  
+
   attachInterrupt(digitalPinToInterrupt(es100Int), atomic, FALLING);
 }
 
 void loop() {
   if (!receiving && trigger) {
     interruptCnt = 0;
-    
+
     es100.enable();
     es100.startRx();
-    
+
     receiving = true;
     trigger = false;
 
-    /* Important to set the interrupt counter AFTER the startRx because the es100 
-     * confirm that the rx has started by triggering the interrupt. 
+    /* Important to set the interrupt counter AFTER the startRx because the es100
+     * confirm that the rx has started by triggering the interrupt.
      * We can't disable interrupts because the wire library will stop working
-     * so we initialize the counters after we start so we can ignore the first false 
+     * so we initialize the counters after we start so we can ignore the first false
      * trigger
      */
     lastinterruptCnt = 0;
@@ -390,7 +403,7 @@ void loop() {
 
   if (lastinterruptCnt < interruptCnt) {
     Serial.print("ES100 Interrupt received... ");
-  
+
     if (es100.getIRQStatus() == 0x01 && es100.getRxOk() == 0x01) {
       validdecode = true;
       Serial.println("Valid decode");
@@ -405,7 +418,7 @@ void loop() {
       // Get everything before disabling the chip.
       status0 = es100.getStatus0();
       nextDst = es100.getNextDst();
-  
+
 /* DEBUG */
       Serial.print("status0.rxOk = B");
       Serial.println(status0.rxOk, BIN);
@@ -418,7 +431,7 @@ void loop() {
       Serial.print("status0.tracking = B");
       Serial.println(status0.tracking, BIN);
 /* END DENUG */
-  
+
       if (!continous) {
         es100.stopRx();
         es100.disable();
@@ -430,14 +443,14 @@ void loop() {
     }
     lastinterruptCnt = interruptCnt;
   }
- 
+
   if (lastMillis + 100 < millis()) {
     showlcd();
 
     // set the trigger to start reception at midnight (UTC-4) if we are not in continous mode.
     // 4am UTC is midnight for me, adjust to your need
-    trigger = (!continous && !receiving && t.hour == 4 && t.min == 0); 
-    
+    trigger = (!continous && !receiving && t.hour == 4 && t.min == 0);
+
     lastMillis = millis();
   }
 }
