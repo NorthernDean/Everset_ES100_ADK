@@ -49,7 +49,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define ISSUE       (1)
 #define ISSUE_DATE  "2022-01-17"
 
-
+#define CONTINUOUS_MODE (true)
 
 #define lcdRS 4
 #define lcdEN 5
@@ -76,7 +76,7 @@ unsigned int lastinterruptCnt = 0;
 
 boolean receiving = false;        // variable to determine if we are in receiving mode
 boolean trigger = true;           // variable to trigger the reception
-boolean continous = false;        // variable to tell the system to continously receive atomic time, if not it will happen every night at midnight
+boolean continuous = CONTINUOUS_MODE;  // variable to tell the system to continuously receive atomic time, if not it will happen every night at midnight
 boolean validdecode = false;      // variable to rapidly know if the system had a valid decode done lately
 
 
@@ -378,6 +378,11 @@ void setup() {
   Serial.println(" startup...");
   Serial.println("-------------------------");
   Serial.println();
+  Serial.print("Continuous mode ");
+  if  (continuous)
+    Serial.println("enabled.");
+  else
+    Serial.println("disabled.");
   Serial.println();
   
   lcd.begin(20, 4);
