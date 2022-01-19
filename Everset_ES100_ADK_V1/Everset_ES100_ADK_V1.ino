@@ -366,15 +366,44 @@ void showlcd() {
 void setup() {
   Wire.begin();
   Serial.begin(9600);
-  Serial.print("\n\n");
-  Serial.print("-------------------------\n");
-  Serial.print("Everset ES100 ADK startup...\n");
-  Serial.print("-------------------------\n");
-  Serial.print("\n\n");
-  es100.begin(es100Int, es100En);
+  Serial.println();
+  Serial.println();
+  Serial.println("-------------------------");
+  Serial.print("Everset ES100 ADK v");
+  Serial.print(VERSION);
+  Serial.print(".");
+  Serial.print(ISSUE);
+  Serial.print(" ");
+  Serial.print(ISSUE_DATE);
+  Serial.println(" startup...");
+  Serial.println("-------------------------");
+  Serial.println();
+  Serial.println();
+  
   lcd.begin(20, 4);
   lcd.clear();
-  lcd.print("Everset ES100 ADK startup...");
+  //                  11111111112
+  //         12345678901234567890
+  //          Everset ES100 ADK
+  //           vn.m yyyy-mm-dd
+  // If VERSION or ISSUE is 2 digits, 
+  // will spill a bit to the right, boo hoo.
+  lcd.setCursor(0,1);
+  lcd.print(" Everset ES100 ADK");
+  lcd.setCursor(0,2);
+  lcd.print("  v");
+  lcd.print(VERSION);
+  lcd.print(".");
+  lcd.print(ISSUE);
+  lcd.print(" ");
+  lcd.print(ISSUE_DATE);
+
+  delay(5000);
+ 
+  lcd.begin(20, 4);
+  lcd.clear();
+
+  es100.begin(es100Int, es100En);
 
   rtc.begin();
 
@@ -384,6 +413,8 @@ void setup() {
 void loop() {
   if (!receiving && trigger) {
     interruptCnt = 0;
+
+    Serial.println();
 
     es100.enable();
     es100.startRx();
@@ -402,7 +433,10 @@ void loop() {
   }
 
   if (lastinterruptCnt < interruptCnt) {
-    Serial.print("ES100 Interrupt received... ");
+    Serial.println();
+    Serial.print("ES100 IRQ ");
+    Serial.print(interruptCnt);
+    Serial.println("...");
 
     if (es100.getIRQStatus() == 0x01 && es100.getRxOk() == 0x01) {
       validdecode = true;
@@ -432,7 +466,7 @@ void loop() {
       Serial.println(status0.tracking, BIN);
 /* END DENUG */
 
-      if (!continous) {
+      if (!continuous) {
         es100.stopRx();
         es100.disable();
         receiving = false;
@@ -447,9 +481,9 @@ void loop() {
   if (lastMillis + 100 < millis()) {
     showlcd();
 
-    // set the trigger to start reception at midnight (UTC-4) if we are not in continous mode.
+    // set the trigger to start reception at midnight (UTC-4) if we are not in continuous mode.
     // 4am UTC is midnight for me, adjust to your need
-    trigger = (!continous && !receiving && t.hour == 4 && t.min == 0);
+    trigger = (!continuous && !receiving && t.hour == 4 && t.min == 0);
 
     lastMillis = millis();
   }
