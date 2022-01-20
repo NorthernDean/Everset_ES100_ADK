@@ -416,7 +416,7 @@ void setup() {
 }
 
 void loop() {
-  if (!receiving && trigger) {
+  if (!receiving && (trigger || continuous)) {
     interruptCnt = 0;
 
     Serial.println();
@@ -471,11 +471,9 @@ void loop() {
       Serial.println(status0.tracking, BIN);
 /* END DENUG */
 
-      if (!continuous) {
-        es100.stopRx();
-        es100.disable();
-        receiving = false;
-      }
+      es100.stopRx();
+      es100.disable();
+      receiving = false;
     }
     else {
       Serial.println("Invalid decode");
