@@ -441,11 +441,11 @@ void loop() {
     Serial.println();
     Serial.print("ES100 IRQ ");
     Serial.print(interruptCnt);
-    Serial.println("...");
+    Serial.print(": ");
 
     if (es100.getIRQStatus() == 0x01 && es100.getRxOk() == 0x01) {
       validdecode = true;
-      Serial.println("Valid decode");
+      Serial.println("...has data");
       // Update lastSyncMillis for lcd display
       lastSyncMillis = millis();
       // We received a valid decode
@@ -476,7 +476,7 @@ void loop() {
       receiving = false;
     }
     else {
-      Serial.println("Invalid decode");
+      Serial.println("...no data");
     }
     lastinterruptCnt = interruptCnt;
   }
