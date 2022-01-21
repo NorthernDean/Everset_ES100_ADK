@@ -141,59 +141,62 @@ char * getISODateStr() {
 }
 
 void displayDST() {
-  lcd.print("DST ");
+  char  StringBuffer[MAX_STRING_SIZE+10];
+  char *DstThisMonth;
+
+
   switch (status0.dstState) {
     case B00:
-      lcd.print("is Not In Effect");
+      DstThisMonth = "NOT in Effect";
       break;
     case B10:
-      lcd.print("Begins Today");
+      DstThisMonth = "BEGINS Today";
       break;
     case B11:
-      lcd.print("is In Effect");
+      DstThisMonth = "YES in Effect";
       break;
     case B01:
-      lcd.print("Ends Today");
+      DstThisMonth = "ENDS Today";
       break;
   }
+
+  snprintf(StringBuffer, MAX_STRING_SIZE, "DST: %s", DstThisMonth);
+  lcd.print(StringBuffer);
 }
 
 void displayNDST() {
-  byte tmp = 0;
-  lcd.print("NDST ");
+  char  StringBuffer[MAX_STRING_SIZE+10];
 
-  tmp = nextDst.month;
-  if (tmp < 10) { lcd.print("0"); }
-  lcd.print(tmp);
-  lcd.print("/");
 
-  tmp = nextDst.day;
-  if (tmp < 10) { lcd.print("0"); }
-  lcd.print(tmp);
-  lcd.print(" ");
-
-  tmp = nextDst.hour;
-  if (tmp < 10) { lcd.print("0"); }
-  lcd.print(tmp);
-  lcd.print(":00");
+  snprintf(StringBuffer, MAX_STRING_SIZE, "DSTChg %2.2d-%2.2d @ %2.2dh00",
+            nextDst.month, nextDst.day, nextDst.hour);
+  lcd.print(StringBuffer);
 }
 
 void displayLeapSecond() {
+  char  StringBuffer[MAX_STRING_SIZE+10];
+  char *TypeThisMonth;
+
+
   switch (status0.leapSecond) {
     case B00:
-      lcd.print("No LS this month");
+      TypeThisMonth = "LeapSecNo";
       break;
     case B10:
-      lcd.print("Neg. LS this month");
+      TypeThisMonth = "LeapSec-";
       break;
     case B11:
-      lcd.print("Pos. LS this month");
+      TypeThisMonth = "LeapSec+";
       break;
   }
+
+  snprintf(StringBuffer, MAX_STRING_SIZE, "This month %s", TypeThisMonth);
+  lcd.print(StringBuffer);
 }
 
 void displayLastSync() {
-  lcd.print("Last sync ");
+  char  StringBuffer[MAX_STRING_SIZE+10];
+
 
   if (lastSyncMillis > 0) {
     int days =    (millis() - lastSyncMillis) / 86400000;
@@ -201,62 +204,46 @@ void displayLastSync() {
     int minutes = (((millis() - lastSyncMillis) % 86400000) % 3600000) / 60000;
     int seconds = ((((millis() - lastSyncMillis) % 86400000) % 3600000) % 60000) / 1000;
 
-    if (days > 0) {
-      if (days < 10) { lcd.print("0"); }
-      lcd.print(days);
-      lcd.print("d");
-      if (hours < 10) { lcd.print("0"); }
-      lcd.print(hours);
-      lcd.print("h");
-      if (minutes < 10) { lcd.print("0"); }
-      lcd.print(minutes);
-      lcd.print("m");
+    if  (days > 0) {
+      snprintf(StringBuffer, MAX_STRING_SIZE, "LastSync %2.2dd%2.2dh%2.2dm",
+              days, hours, minutes);
     } else {
-      if (hours > 0) {
-        if (hours < 10) { lcd.print("0"); }
-        lcd.print(hours);
-        lcd.print("h");
-        if (minutes < 10) { lcd.print("0"); }
-        lcd.print(minutes);
-        lcd.print("m");
-        if (seconds < 10) { lcd.print("0"); }
-        lcd.print(seconds);
-        lcd.print("s");
-      } else {
-        if (minutes > 0) {
-          if (minutes < 10) { lcd.print("0"); }
-          lcd.print(minutes);
-          lcd.print("m");
-          if (seconds < 10) { lcd.print("0"); }
-          lcd.print(seconds);
-          lcd.print("s");
-        } else {
-          if (seconds < 10) { lcd.print("0"); }
-          lcd.print(seconds);
-          lcd.print("s");
-        }
-      }
+      snprintf(StringBuffer, MAX_STRING_SIZE, "LastSync %2.2dh%2.2dm%2.2ds",
+              hours, minutes, seconds);
     }
   } else {
-    lcd.print("never");
+      snprintf(StringBuffer, MAX_STRING_SIZE, "LastSync no sync yet");
   }
+
+  lcd.print(StringBuffer);
 }
 
 void displayInterrupt() {
-  lcd.print("Interrupt Count ");
-  lcd.print(interruptCnt);
+  char  StringBuffer[MAX_STRING_SIZE+10];
+
+  snprintf(StringBuffer, MAX_STRING_SIZE, "IRQ Count %5d", interruptCnt);
+  lcd.print(StringBuffer);
 }
 
 void displayAntenna() {
-  lcd.print("Antenna used ");
+  char  StringBuffer[MAX_STRING_SIZE+10];
+  char *AntennaUsed;
+
+
   switch (status0.antenna) {
-    case B0:
-      lcd.print("1");
+    case 0:
+      AntennaUsed = "0";
       break;
-    case B1:
-      lcd.print("2");
+    case 1:
+      AntennaUsed = "1";
+      break;
+    default:
+      AntennaUsed = "?";
       break;
   }
+
+  snprintf(StringBuffer, MAX_STRING_SIZE, "Antenna %s used", AntennaUsed);
+  lcd.print(StringBuffer);
 }
 
 void clearLine(unsigned int n) {
