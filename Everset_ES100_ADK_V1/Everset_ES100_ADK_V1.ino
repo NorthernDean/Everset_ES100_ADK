@@ -51,6 +51,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #define CONTINUOUS_MODE (true)
 
+#define MAX_STRING_SIZE   (60)
+
 #define lcdRS 4
 #define lcdEN 5
 #define lcdD4 8
@@ -352,47 +354,43 @@ void showlcd() {
 }
 
 void setup() {
+  char  StringBuffer[MAX_STRING_SIZE+10];
+
+
   Wire.begin();
   Serial.begin(9600);
   Serial.println();
   Serial.println();
   Serial.println("-------------------------");
-  Serial.print("Everset ES100 ADK v");
-  Serial.print(VERSION);
-  Serial.print(".");
-  Serial.print(ISSUE);
-  Serial.print(" ");
-  Serial.print(ISSUE_DATE);
-  Serial.println(" startup...");
+
+  snprintf(StringBuffer, MAX_STRING_SIZE, "Everset ES100 ADK [v%d.%d %s] startup", VERSION, ISSUE, ISSUE_DATE);
+  Serial.println(StringBuffer);
+
   Serial.println("-------------------------");
   Serial.println();
-  Serial.print("Continuous mode ");
-  if  (continuous)
-    Serial.println("enabled.");
-  else
-    Serial.println("disabled.");
+
+  snprintf(StringBuffer, MAX_STRING_SIZE, "Continuous mode %s.", continuous ? "enabled" : "disabled");
+  Serial.println(StringBuffer);
+
   Serial.println();
-  
+
   lcd.begin(20, 4);
   lcd.clear();
   //                  11111111112
   //         12345678901234567890
   //          Everset ES100 ADK
   //           vn.m yyyy-mm-dd
-  // If VERSION or ISSUE is 2 digits, 
+  // If VERSION or ISSUE is 2 digits,
   // will spill a bit to the right, boo hoo.
   lcd.setCursor(0,1);
-  lcd.print(" Everset ES100 ADK");
+  lcd.print(" Everset ES100 ADK  ");
+
   lcd.setCursor(0,2);
-  lcd.print("  v");
-  lcd.print(VERSION);
-  lcd.print(".");
-  lcd.print(ISSUE);
-  lcd.print(" ");
-  lcd.print(ISSUE_DATE);
+  snprintf(StringBuffer, MAX_STRING_SIZE, " [v%d.%d %s]", VERSION, ISSUE, ISSUE_DATE);
+  lcd.print(StringBuffer);
 
   delay(5000);
- 
+
   lcd.begin(20, 4);
   lcd.clear();
 
@@ -404,6 +402,9 @@ void setup() {
 }
 
 void loop() {
+  char  StringBuffer[MAX_STRING_SIZE+10];
+
+
   if (!receiving && (trigger || continuous)) {
     interruptCnt = 0;
 
@@ -427,13 +428,16 @@ void loop() {
 
   if (lastinterruptCnt < interruptCnt) {
     Serial.println();
-    Serial.print("ES100 IRQ ");
-    Serial.print(interruptCnt);
-    Serial.print(": ");
+
+    snprintf(StringBuffer, MAX_STRING_SIZE, "ES100 IRQ %5d: ", interruptCnt);
 
     if (es100.getIRQStatus() == 0x01 && es100.getRxOk() == 0x01) {
       validdecode = true;
-      Serial.println("...has data");
+
+      strncat(StringBuffer, "has data at ", MAX_STRING_SIZE);
+      strncat(StringBuffer, getISODateStr(), MAX_STRING_SIZE);
+      Serial.println(StringBuffer);
+
       // Update lastSyncMillis for lcd display
       lastSyncMillis = millis();
       // We received a valid decode
@@ -447,16 +451,13 @@ void loop() {
       nextDst = es100.getNextDst();
 
 /* DEBUG */
-      Serial.print("status0.rxOk = B");
-      Serial.println(status0.rxOk, BIN);
-      Serial.print("status0.antenna = B");
-      Serial.println(status0.antenna, BIN);
-      Serial.print("status0.leapSecond = B");
-      Serial.println(status0.leapSecond, BIN);
-      Serial.print("status0.dstState = B");
-      Serial.println(status0.dstState, BIN);
-      Serial.print("status0.tracking = B");
-      Serial.println(status0.tracking, BIN);
+      snprintf(StringBuffer, MAX_STRING_SIZE, "status: rxOk    0x%2.2X, antenna  0x%2.2X, leapSecond 0x%2.2X",
+                status0.rxOk, status0.antenna, status0.leapSecond, status0.dstState, status0.tracking);
+      Serial.println(StringBuffer);
+
+      snprintf(StringBuffer, MAX_STRING_SIZE, "        dstState 0x%2.2X, tracking 0x%2.2X",
+                status0.rxOk, status0.antenna, status0.leapSecond, status0.dstState, status0.tracking);
+      Serial.println(StringBuffer);
 /* END DENUG */
 
       es100.stopRx();
@@ -464,7 +465,10 @@ void loop() {
       receiving = false;
     }
     else {
-      Serial.println("...no data");
+      strncat(StringBuffer, "no data at ", MAX_STRING_SIZE);
+      strncat(StringBuffer, getISODateStr(), MAX_STRING_SIZE);
+      Serial.println(StringBuffer);
+
     }
     lastinterruptCnt = interruptCnt;
   }
