@@ -54,6 +54,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #define MAX_STRING_SIZE         (60)
 #define MAX_ISODATE_STRING_SIZE (sizeof("yyyy-mm-dd hh:mm:ssZ"))
+
+// Define the 4 line x 20 chars/line LCD peripheral.
 #define lcdRS                   (4)
 #define lcdEN                   (5)
 #define lcdD4                   (8)
@@ -62,8 +64,10 @@ POSSIBILITY OF SUCH DAMAGE.
 #define lcdD7                   (11)
 LiquidCrystal lcd(lcdRS, lcdEN, lcdD4, lcdD5, lcdD6, lcdD7);
 
+// Define the DS3231 RTC peripheral.
 DS3231 rtc(SDA, SCL);
 
+// Define the ES100 WWVB receiver peripheral - uses I2C lines common with RTC.
 #define es100Int                (2)
 #define es100En                 (13)
 ES100 es100;
