@@ -479,6 +479,9 @@ loop() {
     InterruptCount = 0;
 
     Serial.println();
+    TimeValue=rtc.getTime();
+    snprintf(StringBuffer, MAX_STRING_SIZE, "Activate receive mode at %s UTC.", getISODateStr());
+    Serial.println(StringBuffer);
 
     es100.enable();
     es100.startRx();
@@ -528,7 +531,17 @@ loop() {
       snprintf(StringBuffer, MAX_STRING_SIZE, "        dstState 0x%2.2X, tracking 0x%2.2X",
                 SavedStatus0.rxOk, SavedStatus0.antenna, SavedStatus0.leapSecond, SavedStatus0.dstState, SavedStatus0.tracking);
       Serial.println(StringBuffer);
-/* END DENUG */
+/* END DEBUG */
+
+      Serial.println();
+      Serial.println(getDST());
+      Serial.println(getNDST());
+      Serial.println(getLeapSecond());
+      Serial.println(getLastSync());
+      Serial.println(getInterrupt());
+      Serial.println(getAntenna());
+      Serial.println();
+
       // Update LastSyncMillis for lcd display
       LastSyncMillis = millis();
 
