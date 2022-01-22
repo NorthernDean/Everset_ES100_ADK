@@ -72,30 +72,29 @@ DS3231 rtc(SDA, SCL);
 #define es100En                 (13)
 ES100 es100;
 
-unsigned long lastMillis = 0;
-volatile unsigned long atomicMillis = 0;
-unsigned long lastSyncMillis = 0;
+unsigned long           LastMillis = 0;
+volatile unsigned long  AtomicMillis = 0;
+unsigned long           LastSyncMillis = 0;
 
-volatile unsigned int interruptCnt = 0;
-unsigned int lastinterruptCnt = 0;
-
-
-boolean receiving = false;        // variable to determine if we are in receiving mode
-boolean trigger = true;           // variable to trigger the reception
-boolean continuous = CONTINUOUS_MODE;  // variable to tell the system to continuously receive atomic time, if not it will happen every night at midnight
-boolean validdecode = false;      // variable to rapidly know if the system had a valid decode done lately
+volatile unsigned int InterruptCount = 0;
+unsigned int          LastInterruptCount = 0;
 
 
-Time t;
-ES100DateTime d;
-ES100Status0  status0;
-ES100NextDst  nextDst;
+boolean       InReceiveMode = false;            // variable to determine if we are in receive mode
+boolean       TriggerReception = true;          // variable to trigger the reception
+boolean       ContinuousMode = CONTINUOUS_MODE; // variable to tell the system to continuously receive atomic time, if not it will happen every night at midnight
+boolean       ValidDecode = false;              // variable to rapidly know if the system had a valid decode done lately
+
+ES100DateTime SavedDateTime;
+ES100Status0  SavedStatus0;
+ES100NextDst  SavedNextDst;
+
 
 void atomic() {
   // Called procedure when we receive an interrupt from the ES100
   // Got a interrupt and store the currect millis for future use if we have a valid decode
-  atomicMillis = millis();
-  interruptCnt++;
+  AtomicMillis = millis();
+  InterruptCount++;
 }
 
 char * getISODateStr() {
@@ -177,11 +176,11 @@ void displayLastSync() {
   char  StringBuffer[MAX_STRING_SIZE+10];
 
 
-  if (lastSyncMillis > 0) {
-    int days =    (millis() - lastSyncMillis) / 86400000;
-    int hours =   ((millis() - lastSyncMillis) % 86400000) / 3600000;
-    int minutes = (((millis() - lastSyncMillis) % 86400000) % 3600000) / 60000;
-    int seconds = ((((millis() - lastSyncMillis) % 86400000) % 3600000) % 60000) / 1000;
+  if (LastSyncMillis > 0) {
+    int days =    (millis() - LastSyncMillis) / 86400000;
+    int hours =   ((millis() - LastSyncMillis) % 86400000) / 3600000;
+    int minutes = (((millis() - LastSyncMillis) % 86400000) % 3600000) / 60000;
+    int seconds = ((((millis() - LastSyncMillis) % 86400000) % 3600000) % 60000) / 1000;
 
     //                                                11111111112
     //                                       12345678901234567890
@@ -213,7 +212,7 @@ void displayAntenna() {
   char *AntennaUsed;
 
 
-  switch (status0.antenna) {
+  switch (SavedStatus0.antenna) {
     case 0:
       AntennaUsed = "1";
       break;
@@ -225,6 +224,9 @@ void displayAntenna() {
       break;
   }
 
+  //                                                11111111112
+  //                                       12345678901234567890
+  //                                       Antenna ? used
   snprintf(StringBuffer, MAX_STRING_SIZE, "Antenna %s used", AntennaUsed);
   lcd.print(StringBuffer);
 }
@@ -237,8 +239,9 @@ void clearLine(unsigned int n) {
 void showlcd() {
   lcd.setCursor(0,0);
   lcd.print(getISODateStr());
+  lcd.print("Z");
 
-  if (validdecode) {
+  if (ValidDecode) {
     // Scroll lines every 5 seconds.
     int lcdLine = (millis() / 5000 % 6) + 1;
 
@@ -377,18 +380,19 @@ void setup() {
 
 void loop() {
   char  StringBuffer[MAX_STRING_SIZE+10];
+  Time  TimeValue;
 
 
-  if (!receiving && (trigger || continuous)) {
-    interruptCnt = 0;
+  if (!InReceiveMode && (TriggerReception || ContinuousMode)) {
+    InterruptCount = 0;
 
     Serial.println();
 
     es100.enable();
     es100.startRx();
 
-    receiving = true;
-    trigger = false;
+    InReceiveMode = true;
+    TriggerReception = false;
 
     /* Important to set the interrupt counter AFTER the startRx because the es100
      * confirm that the rx has started by triggering the interrupt.
@@ -396,64 +400,67 @@ void loop() {
      * so we initialize the counters after we start so we can ignore the first false
      * trigger
      */
-    lastinterruptCnt = 0;
-    interruptCnt = 0;
+    LastInterruptCount = 0;
+    InterruptCount = 0;
   }
 
-  if (lastinterruptCnt < interruptCnt) {
+  if (LastInterruptCount < InterruptCount) {
     Serial.println();
 
-    snprintf(StringBuffer, MAX_STRING_SIZE, "ES100 IRQ %5d: ", interruptCnt);
+    snprintf(StringBuffer, MAX_STRING_SIZE, "ES100 IRQ %5d: ", InterruptCount);
 
     if (es100.getIRQStatus() == 0x01 && es100.getRxOk() == 0x01) {
-      validdecode = true;
+      ValidDecode = true;
 
       strncat(StringBuffer, "has data at ", MAX_STRING_SIZE);
       strncat(StringBuffer, getISODateStr(), MAX_STRING_SIZE);
+      strncat(StringBuffer, " UTC.", MAX_STRING_SIZE);
       Serial.println(StringBuffer);
 
-      // Update lastSyncMillis for lcd display
-      lastSyncMillis = millis();
+      // Update LastSyncMillis for lcd display
+      LastSyncMillis = millis();
       // We received a valid decode
-      d = es100.getDateTime();
+      SavedDateTime = es100.getDateTime();
       // Updating the RTC
-      rtc.setDate(d.day, d.month, 2000+d.year);
-      rtc.setTime(d.hour, d.minute, d.second + ((millis() - atomicMillis)/1000));
+      rtc.setDate(SavedDateTime.day,  SavedDateTime.month,  2000+SavedDateTime.year);
+      rtc.setTime(SavedDateTime.hour, SavedDateTime.minute, SavedDateTime.second + ((millis() - AtomicMillis)/1000));
 
       // Get everything before disabling the chip.
-      status0 = es100.getStatus0();
-      nextDst = es100.getNextDst();
+      SavedStatus0 = es100.getStatus0();
+      SavedNextDst = es100.getNextDst();
 
 /* DEBUG */
       snprintf(StringBuffer, MAX_STRING_SIZE, "status: rxOk    0x%2.2X, antenna  0x%2.2X, leapSecond 0x%2.2X",
-                status0.rxOk, status0.antenna, status0.leapSecond, status0.dstState, status0.tracking);
+                SavedStatus0.rxOk, SavedStatus0.antenna, SavedStatus0.leapSecond, SavedStatus0.dstState, SavedStatus0.tracking);
       Serial.println(StringBuffer);
 
       snprintf(StringBuffer, MAX_STRING_SIZE, "        dstState 0x%2.2X, tracking 0x%2.2X",
-                status0.rxOk, status0.antenna, status0.leapSecond, status0.dstState, status0.tracking);
+                SavedStatus0.rxOk, SavedStatus0.antenna, SavedStatus0.leapSecond, SavedStatus0.dstState, SavedStatus0.tracking);
       Serial.println(StringBuffer);
 /* END DENUG */
 
       es100.stopRx();
       es100.disable();
-      receiving = false;
+      InReceiveMode = false;
     }
     else {
       strncat(StringBuffer, "no data at ", MAX_STRING_SIZE);
       strncat(StringBuffer, getISODateStr(), MAX_STRING_SIZE);
+      strncat(StringBuffer, " UTC.", MAX_STRING_SIZE);
       Serial.println(StringBuffer);
 
     }
-    lastinterruptCnt = interruptCnt;
+    LastInterruptCount = InterruptCount;
   }
 
-  if (lastMillis + 100 < millis()) {
+  if (LastMillis + 100 < millis()) {
     showlcd();
 
     // set the trigger to start reception at midnight (UTC-4) if we are not in continuous mode.
     // 4am UTC is midnight for me, adjust to your need
-    trigger = (!continuous && !receiving && t.hour == 4 && t.min == 0);
+    TimeValue=rtc.getTime();
+    TriggerReception = (!ContinuousMode && !InReceiveMode && TimeValue.hour == 4 && TimeValue.min == 0);
 
-    lastMillis = millis();
+    LastMillis = millis();
   }
 }
