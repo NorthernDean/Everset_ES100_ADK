@@ -45,10 +45,9 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <Wire.h>
 
 
-#define VERSION     (0)
-#define ISSUE       (3)
-#define ISSUE_DATE  "2022-01-20"
-
+#define VERSION                 (0)
+#define ISSUE                   (4)
+#define ISSUE_DATE              "2022-01-21"
 
 #define CONTINUOUS_MODE         (false)
 
