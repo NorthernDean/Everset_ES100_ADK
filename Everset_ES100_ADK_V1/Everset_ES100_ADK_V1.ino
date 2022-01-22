@@ -104,7 +104,12 @@ atomic() {
   // Called procedure when we receive an interrupt from the ES100
   // Got a interrupt and store the currect millis for future use if we have a valid decode
   AtomicMillis = millis();
-  InterruptCount++;
+
+  // Wrap interrupt count at 9999.
+  if  (InterruptCount<9999)
+    InterruptCount++;
+  else
+    InterruptCount=0;
 }
 
   static char  ReturnValue[MAX_ISODATE_STRING_SIZE+10];
