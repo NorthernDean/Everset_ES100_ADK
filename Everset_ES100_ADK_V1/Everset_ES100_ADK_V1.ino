@@ -59,6 +59,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define lcdD6 10
 #define lcdD7 11
 #define MAX_STRING_SIZE         (60)
+#define MAX_ISODATE_STRING_SIZE (sizeof("yyyy-mm-dd hh:mm:ssZ"))
 LiquidCrystal lcd(lcdRS, lcdEN, lcdD4, lcdD5, lcdD6, lcdD7);
 
 DS3231 rtc(SDA, SCL);
@@ -95,51 +96,16 @@ void atomic() {
 }
 
 char * getISODateStr() {
+  static char  ReturnValue[MAX_ISODATE_STRING_SIZE+10];
   static char result[19];
+  Time TimeValue;
 
 
-  t=rtc.getTime();
+  TimeValue=rtc.getTime();
+  snprintf(ReturnValue, MAX_ISODATE_STRING_SIZE, "%4.4d-%2.2d-%2.2d %2.2d:%2.2d:%2.2d",
+          TimeValue.year, TimeValue.mon, TimeValue.date, TimeValue.hour, TimeValue.min, TimeValue.sec);
 
-  result[0]=char((t.year / 1000)+48);
-  result[1]=char(((t.year % 1000) / 100)+48);
-  result[2]=char(((t.year % 100) / 10)+48);
-  result[3]=char((t.year % 10)+48);
-  result[4]='-';
-  if (t.mon<10)
-    result[5]='0';
-  else
-    result[5]=char((t.mon / 10)+48);
-  result[6]=char((t.mon % 10)+48);
-  result[7]='-';
-  if (t.date<10)
-    result[8]='0';
-  else
-    result[8]=char((t.date / 10)+48);
-  result[9]=char((t.date % 10)+48);
-
-  result[10]=' ';
-
-  if (t.hour<10)
-    result[11]='0';
-  else
-    result[11]=char((t.hour / 10)+48);
-  result[12]=char((t.hour % 10)+48);
-  result[13]=':';
-  if (t.min<10)
-    result[14]='0';
-  else
-    result[14]=char((t.min / 10)+48);
-  result[15]=char((t.min % 10)+48);
-  result[16]=':';
-  if (t.sec<10)
-    result[17]='0';
-  else
-    result[17]=char((t.sec / 10)+48);
-  result[18]=char((t.sec % 10)+48);
-  result[19]='Z';
-  result[20]=0;
-
-  return result;
+  return ReturnValue;
 }
 
 void displayDST() {
