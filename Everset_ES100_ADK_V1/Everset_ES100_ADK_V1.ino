@@ -112,6 +112,8 @@ atomic() {
     InterruptCount=0;
 }
 
+// ******************
+
   static char  ReturnValue[MAX_ISODATE_STRING_SIZE+10];
   static char result[19];
 char *
@@ -125,6 +127,8 @@ getISODateStr() {
 
   return ReturnValue;
 }
+
+// ******************
 
   char  StringBuffer[MAX_STRING_SIZE+10];
   char *DstThisMonth;
@@ -156,6 +160,8 @@ void
 displayDST() {
   char  StringBuffer[MAX_STRING_SIZE+10];
 
+// ******************
+
   //                                                11111111112
   //                                       12345678901234567890
   //                                       DSTChg mm-dd @ hh:00
@@ -167,6 +173,9 @@ displayDST() {
 void
 displayNDST() {
   char  StringBuffer[MAX_STRING_SIZE+10];
+
+// ******************
+
   char *TypeThisMonth;
 
 
@@ -190,6 +199,8 @@ displayNDST() {
 void
 displayLeapSecond() {
 }
+
+// ******************
 
   char  StringBuffer[MAX_STRING_SIZE+10];
 
@@ -219,6 +230,8 @@ void
 displayLastSync() {
   char  StringBuffer[MAX_STRING_SIZE+10];
 
+// ******************
+
   //                                                11111111112
   //                                       12345678901234567890
   //                                       IRQ count nnnnn
@@ -229,6 +242,9 @@ displayLastSync() {
 void
 displayInterrupt() {
   char  StringBuffer[MAX_STRING_SIZE+10];
+
+// ******************
+
   char *AntennaUsed;
 
 
@@ -253,11 +269,15 @@ void
 displayAntenna() {
 }
 
+// ******************
+
 void
 clearLine(unsigned int n) {
   while (n-- > 0)
     lcd.print(" ");
 }
+
+// ******************
 
 void
 showlcd() {
@@ -352,6 +372,8 @@ showlcd() {
   }
 }
 
+// ******************
+
 void
 setup() {
   char  StringBuffer[MAX_STRING_SIZE+10];
@@ -402,6 +424,8 @@ setup() {
 
   attachInterrupt(digitalPinToInterrupt(es100Int), atomic, FALLING);
 }
+
+// ******************
 
 void
 loop() {
