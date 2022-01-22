@@ -366,6 +366,9 @@ void setup() {
 
   rtc.begin();
 
+  snprintf(StringBuffer, MAX_STRING_SIZE, "Starting at %s UTC.", getISODateStr());
+  Serial.print(StringBuffer);
+
   attachInterrupt(digitalPinToInterrupt(es100Int), atomic, FALLING);
 }
 
