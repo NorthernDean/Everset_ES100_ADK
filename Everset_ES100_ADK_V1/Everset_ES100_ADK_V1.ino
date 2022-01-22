@@ -52,20 +52,20 @@ POSSIBILITY OF SUCH DAMAGE.
 #define CONTINUOUS_MODE (false)
 
 
-#define lcdRS 4
-#define lcdEN 5
-#define lcdD4 8
-#define lcdD5 9
-#define lcdD6 10
-#define lcdD7 11
 #define MAX_STRING_SIZE         (60)
 #define MAX_ISODATE_STRING_SIZE (sizeof("yyyy-mm-dd hh:mm:ssZ"))
+#define lcdRS                   (4)
+#define lcdEN                   (5)
+#define lcdD4                   (8)
+#define lcdD5                   (9)
+#define lcdD6                   (10)
+#define lcdD7                   (11)
 LiquidCrystal lcd(lcdRS, lcdEN, lcdD4, lcdD5, lcdD6, lcdD7);
 
 DS3231 rtc(SDA, SCL);
 
-#define es100Int 2
-#define es100En 13
+#define es100Int                (2)
+#define es100En                 (13)
 ES100 es100;
 uint8_t     lp = 0;
 
