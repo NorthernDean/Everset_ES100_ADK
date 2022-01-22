@@ -425,7 +425,14 @@ setup() {
   Serial.println("-------------------------");
   Serial.println();
 
-  snprintf(StringBuffer, MAX_STRING_SIZE, "Continuous mode %s.", ContinuousMode ? "enabled" : "disabled");
+  if  (CONTINUOUS_MODE) {
+    //                                                11111111112222222222333333333344444444445555555555
+    //                                       12345678901234567890123456789012345678901234567890123456789
+    //                                       Continuous mode enabled, interval approx. nn hour(s).
+    snprintf(StringBuffer, MAX_STRING_SIZE, "Continuous mode enabled, interval approx. %2d hour(s).", CONTINUOUS_RETRY_HOURS);
+  } else {
+    snprintf(StringBuffer, MAX_STRING_SIZE, "Continuous mode disabled.");
+  }
   Serial.println(StringBuffer);
   Serial.println();
 
