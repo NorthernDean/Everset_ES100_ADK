@@ -67,7 +67,6 @@ DS3231 rtc(SDA, SCL);
 #define es100Int                (2)
 #define es100En                 (13)
 ES100 es100;
-uint8_t     lp = 0;
 
 unsigned long lastMillis = 0;
 volatile unsigned long atomicMillis = 0;
