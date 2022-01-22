@@ -212,10 +212,10 @@ void displayAntenna() {
 
   switch (status0.antenna) {
     case 0:
-      AntennaUsed = "0";
+      AntennaUsed = "1";
       break;
     case 1:
-      AntennaUsed = "1";
+      AntennaUsed = "2";
       break;
     default:
       AntennaUsed = "?";
