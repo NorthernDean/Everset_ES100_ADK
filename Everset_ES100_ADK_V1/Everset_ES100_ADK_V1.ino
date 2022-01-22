@@ -99,16 +99,18 @@ ES100Status0  SavedStatus0;
 ES100NextDst  SavedNextDst;
 
 
-void atomic() {
+void
+atomic() {
   // Called procedure when we receive an interrupt from the ES100
   // Got a interrupt and store the currect millis for future use if we have a valid decode
   AtomicMillis = millis();
   InterruptCount++;
 }
 
-char * getISODateStr() {
   static char  ReturnValue[MAX_ISODATE_STRING_SIZE+10];
   static char result[19];
+char *
+getISODateStr() {
   Time TimeValue;
 
 
@@ -119,7 +121,6 @@ char * getISODateStr() {
   return ReturnValue;
 }
 
-void displayDST() {
   char  StringBuffer[MAX_STRING_SIZE+10];
   char *DstThisMonth;
 
@@ -146,7 +147,8 @@ void displayDST() {
   lcd.print(StringBuffer);
 }
 
-void displayNDST() {
+void
+displayDST() {
   char  StringBuffer[MAX_STRING_SIZE+10];
 
   //                                                11111111112
@@ -157,7 +159,8 @@ void displayNDST() {
   lcd.print(StringBuffer);
 }
 
-void displayLeapSecond() {
+void
+displayNDST() {
   char  StringBuffer[MAX_STRING_SIZE+10];
   char *TypeThisMonth;
 
@@ -179,9 +182,10 @@ void displayLeapSecond() {
   //                                       NoLeapSec this month
   snprintf(StringBuffer, MAX_STRING_SIZE, "%s this month", TypeThisMonth);
   lcd.print(StringBuffer);
+void
+displayLeapSecond() {
 }
 
-void displayLastSync() {
   char  StringBuffer[MAX_STRING_SIZE+10];
 
 
@@ -206,7 +210,8 @@ void displayLastSync() {
   lcd.print(StringBuffer);
 }
 
-void displayInterrupt() {
+void
+displayLastSync() {
   char  StringBuffer[MAX_STRING_SIZE+10];
 
   //                                                11111111112
@@ -216,7 +221,8 @@ void displayInterrupt() {
   lcd.print(StringBuffer);
 }
 
-void displayAntenna() {
+void
+displayInterrupt() {
   char  StringBuffer[MAX_STRING_SIZE+10];
   char *AntennaUsed;
 
@@ -238,14 +244,18 @@ void displayAntenna() {
   //                                       Antenna ? used
   snprintf(StringBuffer, MAX_STRING_SIZE, "Antenna %s used", AntennaUsed);
   lcd.print(StringBuffer);
+void
+displayAntenna() {
 }
 
-void clearLine(unsigned int n) {
+void
+clearLine(unsigned int n) {
   while (n-- > 0)
     lcd.print(" ");
 }
 
-void showlcd() {
+void
+showlcd() {
   lcd.setCursor(0,0);
   lcd.print(getISODateStr());
   lcd.print("Z");
@@ -337,7 +347,8 @@ void showlcd() {
   }
 }
 
-void setup() {
+void
+setup() {
   char  StringBuffer[MAX_STRING_SIZE+10];
 
 
@@ -387,7 +398,8 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(es100Int), atomic, FALLING);
 }
 
-void loop() {
+void
+loop() {
   char  StringBuffer[MAX_STRING_SIZE+10];
   Time  TimeValue;
   unsigned long NowMillis;
