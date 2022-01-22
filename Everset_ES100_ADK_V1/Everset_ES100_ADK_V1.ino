@@ -317,7 +317,7 @@ void
 showlcd() {
   lcd.setCursor(0,0);
   lcd.print(getISODateStr());
-  lcd.print("Z");
+  // lcd.print("Z");
 
   if (ValidDecode) {
     // Scroll lines every 5 seconds.
@@ -516,7 +516,7 @@ loop() {
       SavedNextDst = es100.getNextDst();
 
 /* DEBUG */
-      snprintf(StringBuffer, MAX_STRING_SIZE, "status: rxOk    0x%2.2X, antenna  0x%2.2X, leapSecond 0x%2.2X",
+      snprintf(StringBuffer, MAX_STRING_SIZE, "status: rxOk     0x%2.2X, antenna  0x%2.2X, leapSecond 0x%2.2X",
                 SavedStatus0.rxOk, SavedStatus0.antenna, SavedStatus0.leapSecond, SavedStatus0.dstState, SavedStatus0.tracking);
       Serial.println(StringBuffer);
 
