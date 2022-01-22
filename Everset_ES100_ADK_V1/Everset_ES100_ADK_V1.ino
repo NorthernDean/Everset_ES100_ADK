@@ -51,7 +51,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #define CONTINUOUS_MODE (false)
 
-#define MAX_STRING_SIZE   (60)
 
 #define lcdRS 4
 #define lcdEN 5
@@ -59,6 +58,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define lcdD5 9
 #define lcdD6 10
 #define lcdD7 11
+#define MAX_STRING_SIZE         (60)
 LiquidCrystal lcd(lcdRS, lcdEN, lcdD4, lcdD5, lcdD6, lcdD7);
 
 DS3231 rtc(SDA, SCL);
@@ -147,7 +147,7 @@ void displayDST() {
   char *DstThisMonth;
 
 
-  switch (status0.dstState) {
+  switch (SavedStatus0.dstState) {
     case B00:
       DstThisMonth = "NOT in Effect";
       break;
@@ -162,16 +162,21 @@ void displayDST() {
       break;
   }
 
-  snprintf(StringBuffer, MAX_STRING_SIZE, "DST: %s", DstThisMonth);
+  //                                                11111111112
+  //                                       12345678901234567890
+  //                                       DST NOT in Effect
+  snprintf(StringBuffer, MAX_STRING_SIZE, "DST %s", DstThisMonth);
   lcd.print(StringBuffer);
 }
 
 void displayNDST() {
   char  StringBuffer[MAX_STRING_SIZE+10];
 
-
+  //                                                11111111112
+  //                                       12345678901234567890
+  //                                       DSTChg mm-dd @ hh:00
   snprintf(StringBuffer, MAX_STRING_SIZE, "DSTChg %2.2d-%2.2d @ %2.2dh00",
-            nextDst.month, nextDst.day, nextDst.hour);
+            SavedNextDst.month, SavedNextDst.day, SavedNextDst.hour);
   lcd.print(StringBuffer);
 }
 
@@ -180,19 +185,22 @@ void displayLeapSecond() {
   char *TypeThisMonth;
 
 
-  switch (status0.leapSecond) {
+  switch (SavedStatus0.leapSecond) {
     case B00:
-      TypeThisMonth = "LeapSecNo";
+      TypeThisMonth = "NoLeapSec";
       break;
     case B10:
-      TypeThisMonth = "LeapSec-";
+      TypeThisMonth = "LeapSec- ";
       break;
     case B11:
-      TypeThisMonth = "LeapSec+";
+      TypeThisMonth = "LeapSec+ ";
       break;
   }
 
-  snprintf(StringBuffer, MAX_STRING_SIZE, "This month %s", TypeThisMonth);
+  //                                                11111111112
+  //                                       12345678901234567890
+  //                                       NoLeapSec this month
+  snprintf(StringBuffer, MAX_STRING_SIZE, "%s this month", TypeThisMonth);
   lcd.print(StringBuffer);
 }
 
@@ -206,15 +214,16 @@ void displayLastSync() {
     int minutes = (((millis() - lastSyncMillis) % 86400000) % 3600000) / 60000;
     int seconds = ((((millis() - lastSyncMillis) % 86400000) % 3600000) % 60000) / 1000;
 
-    if  (days > 0) {
-      snprintf(StringBuffer, MAX_STRING_SIZE, "LastSync %2.2dd%2.2dh%2.2dm",
-              days, hours, minutes);
-    } else {
-      snprintf(StringBuffer, MAX_STRING_SIZE, "LastSync %2.2dh%2.2dm%2.2ds",
-              hours, minutes, seconds);
-    }
+    //                                                11111111112
+    //                                       12345678901234567890
+    //                                       LastSync DdHHhMMmSSs
+    snprintf(StringBuffer, MAX_STRING_SIZE, "LastSync%2dd%2.2dh%2.2dm%2.2ds",
+            days, hours, minutes, seconds);
   } else {
-      snprintf(StringBuffer, MAX_STRING_SIZE, "LastSync no sync yet");
+    //                                                11111111112
+    //                                       12345678901234567890
+    //                                       LastSync no sync yet
+    snprintf(StringBuffer, MAX_STRING_SIZE, "LastSync no sync yet");
   }
 
   lcd.print(StringBuffer);
@@ -223,7 +232,10 @@ void displayLastSync() {
 void displayInterrupt() {
   char  StringBuffer[MAX_STRING_SIZE+10];
 
-  snprintf(StringBuffer, MAX_STRING_SIZE, "IRQ Count %5d", interruptCnt);
+  //                                                11111111112
+  //                                       12345678901234567890
+  //                                       IRQ count nnnnn
+  snprintf(StringBuffer, MAX_STRING_SIZE, "IRQ Count %5d", InterruptCount);
   lcd.print(StringBuffer);
 }
 
@@ -369,9 +381,8 @@ void setup() {
   Serial.println("-------------------------");
   Serial.println();
 
-  snprintf(StringBuffer, MAX_STRING_SIZE, "Continuous mode %s.", continuous ? "enabled" : "disabled");
+  snprintf(StringBuffer, MAX_STRING_SIZE, "Continuous mode %s.", ContinuousMode ? "enabled" : "disabled");
   Serial.println(StringBuffer);
-
   Serial.println();
 
   lcd.begin(20, 4);
