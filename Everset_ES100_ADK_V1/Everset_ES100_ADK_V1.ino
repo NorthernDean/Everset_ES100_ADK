@@ -320,15 +320,6 @@ void showlcd() {
     clearLine(20);
 
   }
-  // ToDo:
-  //   Show rolling status of the following informations :
-  //   Interrupt Count xxxx  /* Where x = 0 to 9999 */
-  //   Last sync xxxxxx ago  /* Where x = 59s / 59m59s / 23h59m / 49d23h */
-  //   DST xxxxxxxxxxxxxxxx  /* Day Light Saving : Where x = is Not In Effect / Begins Today / is In Effect / Ends Today */
-  //   NDST xxxxxxxxxxxxxxx  /* Next DST : Where x = 2019-11-03T2h00 */
-  //   xxxxxxxxxxxxxxxxxxxx  /* Leap Second : Where x = No LS this month / Neg. LS this month / Pos. LS this month */
-  //   Antenna used x    /* Antenna Used for reception where x = 1 or 2 */
-
 }
 
 void setup() {
