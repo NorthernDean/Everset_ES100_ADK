@@ -503,8 +503,6 @@ loop() {
       strncat(StringBuffer, " UTC.", MAX_STRING_SIZE);
       Serial.println(StringBuffer);
 
-      // Update LastSyncMillis for lcd display
-      LastSyncMillis = millis();
       // We received a valid decode
       SavedDateTime = es100.getDateTime();
       // Updating the RTC
@@ -524,6 +522,8 @@ loop() {
                 SavedStatus0.rxOk, SavedStatus0.antenna, SavedStatus0.leapSecond, SavedStatus0.dstState, SavedStatus0.tracking);
       Serial.println(StringBuffer);
 /* END DENUG */
+      // Update LastSyncMillis for lcd display
+      LastSyncMillis = millis();
 
       es100.stopRx();
       es100.disable();
