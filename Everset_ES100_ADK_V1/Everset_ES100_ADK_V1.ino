@@ -63,7 +63,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define CONTINUOUS_RETRY_MILLIS ((unsigned long) (CONTINUOUS_RETRY_HOURS) * (unsigned long) (MILLIS_PER_HOUR))
 
 #define MAX_STRING_SIZE         (60)
-#define MAX_ISODATE_STRING_SIZE (sizeof("yyyy-mm-dd hh:mm:ssZ"))
+#define MAX_LCD_STRING_SIZE     (20)
 
 // Define the 4 line x 20 chars/line LCD peripheral.
 #define lcdRS                   (4)
@@ -91,7 +91,8 @@ unsigned int          LastInterruptCount = 0;
 
 
 boolean       InReceiveMode = false;            // variable to determine if we are in receive mode
-boolean       TriggerReception = true;          // variable to trigger the reception
+boolean       TriggerReceiveMode = true;        // variable to trigger (turn on) receive mode
+boolean       LastTriggerValue = false;         // Track false -> true trigger transition
 boolean       ValidDecode = false;              // variable to rapidly know if the system had a valid decode done lately
 
 ES100DateTime SavedDateTime;
@@ -114,15 +115,14 @@ atomic() {
 
 // ******************
 
-  static char  ReturnValue[MAX_ISODATE_STRING_SIZE+10];
-  static char result[19];
 char *
 getISODateStr() {
+  static char  ReturnValue[MAX_LCD_STRING_SIZE+10];
   Time TimeValue;
 
 
   TimeValue=rtc.getTime();
-  snprintf(ReturnValue, MAX_ISODATE_STRING_SIZE, "%4.4d-%2.2d-%2.2d %2.2d:%2.2d:%2.2d",
+  snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "%4.4d-%2.2d-%2.2d %2.2d:%2.2d:%2.2d",
           TimeValue.year, TimeValue.mon, TimeValue.date, TimeValue.hour, TimeValue.min, TimeValue.sec);
 
   return ReturnValue;
@@ -130,7 +130,9 @@ getISODateStr() {
 
 // ******************
 
-  char  StringBuffer[MAX_STRING_SIZE+10];
+char *
+getDST() {
+  static char  ReturnValue[MAX_LCD_STRING_SIZE+10];
   char *DstThisMonth;
 
 
@@ -149,33 +151,44 @@ getISODateStr() {
       break;
   }
 
-  //                                                11111111112
-  //                                       12345678901234567890
-  //                                       DST NOT in Effect
-  snprintf(StringBuffer, MAX_STRING_SIZE, "DST %s", DstThisMonth);
-  lcd.print(StringBuffer);
+  //                                                   11111111112
+  //                                          12345678901234567890
+  //                                          DST NOT in Effect
+  snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "DST %s", DstThisMonth);
+
+  return ReturnValue;
 }
 
 void
 displayDST() {
-  char  StringBuffer[MAX_STRING_SIZE+10];
+  lcd.print(getDST());
+}
 
 // ******************
 
-  //                                                11111111112
-  //                                       12345678901234567890
-  //                                       DSTChg mm-dd @ hh:00
-  snprintf(StringBuffer, MAX_STRING_SIZE, "DSTChg %2.2d-%2.2d @ %2.2dh00",
+char *
+getNDST () {
+  static char  ReturnValue[MAX_LCD_STRING_SIZE+10];
+
+  //                                                   11111111112
+  //                                          12345678901234567890
+  //                                          DSTChg mm-dd @ hh:00
+  snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "DSTChg %2.2d-%2.2d @ %2.2dh00",
             SavedNextDst.month, SavedNextDst.day, SavedNextDst.hour);
-  lcd.print(StringBuffer);
+
+  return ReturnValue;
 }
 
 void
 displayNDST() {
-  char  StringBuffer[MAX_STRING_SIZE+10];
+  lcd.print(getNDST());
+}
 
 // ******************
 
+char *
+getLeapSecond() {
+  static char  ReturnValue[MAX_LCD_STRING_SIZE+10];
   char *TypeThisMonth;
 
 
@@ -191,18 +204,24 @@ displayNDST() {
       break;
   }
 
-  //                                                11111111112
-  //                                       12345678901234567890
-  //                                       NoLeapSec this month
-  snprintf(StringBuffer, MAX_STRING_SIZE, "%s this month", TypeThisMonth);
-  lcd.print(StringBuffer);
+  //                                                   11111111112
+  //                                          12345678901234567890
+  //                                          NoLeapSec this month
+  snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "%s this month", TypeThisMonth);
+
+  return ReturnValue;
+}
+
 void
 displayLeapSecond() {
+  lcd.print(getLeapSecond());
 }
 
 // ******************
 
-  char  StringBuffer[MAX_STRING_SIZE+10];
+char *
+getLastSync () {
+  static char  ReturnValue[MAX_LCD_STRING_SIZE+10];
 
 
   if (LastSyncMillis > 0) {
@@ -211,40 +230,51 @@ displayLeapSecond() {
     int minutes = (((millis() - LastSyncMillis) % 86400000) % 3600000) / 60000;
     int seconds = ((((millis() - LastSyncMillis) % 86400000) % 3600000) % 60000) / 1000;
 
-    //                                                11111111112
-    //                                       12345678901234567890
-    //                                       LastSync DdHHhMMmSSs
-    snprintf(StringBuffer, MAX_STRING_SIZE, "LastSync%2dd%2.2dh%2.2dm%2.2ds",
+    //                                                   11111111112
+    //                                          12345678901234567890
+    //                                          LastSync DdHHhMMmSSs
+    snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "LastSync%2dd%2.2dh%2.2dm%2.2ds",
             days, hours, minutes, seconds);
   } else {
-    //                                                11111111112
-    //                                       12345678901234567890
-    //                                       LastSync no sync yet
-    snprintf(StringBuffer, MAX_STRING_SIZE, "LastSync no sync yet");
+    //                                                   11111111112
+    //                                          12345678901234567890
+    //                                          LastSync no sync yet
+    snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "LastSync no sync yet");
   }
 
-  lcd.print(StringBuffer);
+  return ReturnValue;
 }
 
 void
 displayLastSync() {
-  char  StringBuffer[MAX_STRING_SIZE+10];
+  lcd.print(getLastSync());
+}
 
 // ******************
 
-  //                                                11111111112
-  //                                       12345678901234567890
-  //                                       IRQ count nnnnn
-  snprintf(StringBuffer, MAX_STRING_SIZE, "IRQ Count %5d", InterruptCount);
-  lcd.print(StringBuffer);
+char *
+getInterrupt () {
+  static char  ReturnValue[MAX_LCD_STRING_SIZE+10];
+
+
+  //                                                   11111111112
+  //                                          12345678901234567890
+  //                                          IRQ count nnnnn
+  snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "IRQ Count %5d", InterruptCount);
+
+  return ReturnValue;
 }
 
 void
 displayInterrupt() {
-  char  StringBuffer[MAX_STRING_SIZE+10];
+  lcd.print(getInterrupt());
+}
 
 // ******************
 
+char *
+getAntenna () {
+  static char  ReturnValue[MAX_LCD_STRING_SIZE+10];
   char *AntennaUsed;
 
 
@@ -260,13 +290,17 @@ displayInterrupt() {
       break;
   }
 
-  //                                                11111111112
-  //                                       12345678901234567890
-  //                                       Antenna ? used
-  snprintf(StringBuffer, MAX_STRING_SIZE, "Antenna %s used", AntennaUsed);
-  lcd.print(StringBuffer);
+  //                                                   11111111112
+  //                                          12345678901234567890
+  //                                          Antenna ? used
+  snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "Antenna %s used", AntennaUsed);
+
+  return ReturnValue;
+}
+
 void
 displayAntenna() {
+  lcd.print(getAntenna());
 }
 
 // ******************
