@@ -49,7 +49,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define ISSUE                   (4)
 #define ISSUE_DATE              "2022-01-21"
 
-#define CONTINUOUS_MODE         (false)
+#define CONTINUOUS_MODE         (true)
 
 #define MAX_STRING_SIZE         (60)
 #define MAX_ISODATE_STRING_SIZE (sizeof("yyyy-mm-dd hh:mm:ssZ"))
