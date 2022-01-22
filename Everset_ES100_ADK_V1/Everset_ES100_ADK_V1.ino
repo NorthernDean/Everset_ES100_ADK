@@ -51,6 +51,17 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #define CONTINUOUS_MODE         (true)
 
+// Hours to retry, if we claim to be in continuous mode.
+// ( continuous mode won't truly be continuous until I
+//   figure out how to make it work properly )
+#define CONTINUOUS_RETRY_HOURS  (1)
+#define MILLIS_PER_SECOND       (1000)
+#define SECONDS_PER_MINUTE      (60)
+#define MINUTES_PER_HOUR        (60)
+#define MILLIS_PER_MINUTE       ((unsigned long) (MILLIS_PER_SECOND) * (unsigned long) (SECONDS_PER_MINUTE))
+#define MILLIS_PER_HOUR         ((unsigned long) (MILLIS_PER_SECOND) * (unsigned long) (SECONDS_PER_MINUTE) * (unsigned long) (MINUTES_PER_HOUR))
+#define CONTINUOUS_RETRY_MILLIS ((unsigned long) (CONTINUOUS_RETRY_HOURS) * (unsigned long) (MILLIS_PER_HOUR))
+
 #define MAX_STRING_SIZE         (60)
 #define MAX_ISODATE_STRING_SIZE (sizeof("yyyy-mm-dd hh:mm:ssZ"))
 
@@ -81,7 +92,6 @@ unsigned int          LastInterruptCount = 0;
 
 boolean       InReceiveMode = false;            // variable to determine if we are in receive mode
 boolean       TriggerReception = true;          // variable to trigger the reception
-boolean       ContinuousMode = CONTINUOUS_MODE; // variable to tell the system to continuously receive atomic time, if not it will happen every night at midnight
 boolean       ValidDecode = false;              // variable to rapidly know if the system had a valid decode done lately
 
 ES100DateTime SavedDateTime;
@@ -380,9 +390,10 @@ void setup() {
 void loop() {
   char  StringBuffer[MAX_STRING_SIZE+10];
   Time  TimeValue;
+  unsigned long NowMillis;
 
 
-  if (!InReceiveMode && (TriggerReception || ContinuousMode)) {
+  if (!InReceiveMode && TriggerReceiveMode) {
     InterruptCount = 0;
 
     Serial.println();
@@ -391,7 +402,8 @@ void loop() {
     es100.startRx();
 
     InReceiveMode = true;
-    TriggerReception = false;
+    TriggerReceiveMode = false;
+    LastTriggerValue = false;
 
     /* Important to set the interrupt counter AFTER the startRx because the es100
      * confirm that the rx has started by triggering the interrupt.
@@ -452,14 +464,22 @@ void loop() {
     LastInterruptCount = InterruptCount;
   }
 
-  if (LastMillis + 100 < millis()) {
+  NowMillis = millis();
+  if (LastMillis + 500 < millis()) {
     showlcd();
 
     // set the trigger to start reception at midnight (UTC-4) if we are not in continuous mode.
     // 4am UTC is midnight for me, adjust to your need
     TimeValue=rtc.getTime();
-    TriggerReception = (!ContinuousMode && !InReceiveMode && TimeValue.hour == 4 && TimeValue.min == 0);
+    TriggerReceiveMode = (!CONTINUOUS_MODE && (!InReceiveMode && TimeValue.hour == 4 && TimeValue.min == 0)) ||
+                          (CONTINUOUS_MODE && (!InReceiveMode && (LastSyncMillis+CONTINUOUS_RETRY_MILLIS) < NowMillis));
+    if  (!LastTriggerValue && TriggerReceiveMode) {
+      snprintf(StringBuffer, MAX_STRING_SIZE, "Triggering receive mode at %s UTC.", getISODateStr());
+      Serial.println(StringBuffer);
+      Serial.println();
+    }
+    LastTriggerValue = TriggerReceiveMode;
 
-    LastMillis = millis();
+    LastMillis = NowMillis;
   }
 }
