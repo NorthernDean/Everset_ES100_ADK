@@ -473,6 +473,9 @@ loop() {
   char  StringBuffer[MAX_STRING_SIZE+10];
   Time  TimeValue;
   unsigned long NowMillis;
+  uint8_t       IRQStatus;
+  uint8_t       RxOk;
+  uint8_t       Control0;
 
 
   if (!InReceiveMode && TriggerReceiveMode) {
@@ -503,9 +506,17 @@ loop() {
   if (LastInterruptCount < InterruptCount) {
     Serial.println();
 
-    snprintf(StringBuffer, MAX_STRING_SIZE, "ES100 IRQ %5d: ", InterruptCount);
+    Control0   = es100.getControl0();
+    IRQStatus = es100.getIRQStatus();
+    RxOk = es100.getRxOk();
 
-    if (es100.getIRQStatus() == 0x01 && es100.getRxOk() == 0x01) {
+    snprintf(StringBuffer, MAX_STRING_SIZE, "Control0=0x%2.2X, IRQStatus=0x%2.2X, RxOk=0x%2.2X", Control0, IRQStatus, RxOk);
+    Serial.println(StringBuffer);
+
+    snprintf(StringBuffer, MAX_STRING_SIZE, "ES100 IRQ %5d: ", InterruptCount);
+    // Add more on the end of that line.
+
+    if (IRQStatus == 0x01 && RxOk == 0x01) {
       ValidDecode = true;
 
       strncat(StringBuffer, "has data at ", MAX_STRING_SIZE);
