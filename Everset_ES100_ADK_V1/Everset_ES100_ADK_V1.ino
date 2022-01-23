@@ -62,8 +62,9 @@ POSSIBILITY OF SUCH DAMAGE.
 #define MILLIS_PER_HOUR         ((unsigned long) (MILLIS_PER_SECOND) * (unsigned long) (SECONDS_PER_MINUTE) * (unsigned long) (MINUTES_PER_HOUR))
 #define CONTINUOUS_RETRY_MILLIS ((unsigned long) (CONTINUOUS_RETRY_HOURS) * (unsigned long) (MILLIS_PER_HOUR))
 
-#define MAX_STRING_SIZE         (60)
-#define MAX_LCD_STRING_SIZE     (20)
+// Define these up by one character to ensure space for NUL.
+#define MAX_STRING_SIZE         (61)
+#define MAX_LCD_STRING_SIZE     (21)
 
 // Define the 4 line x 20 chars/line LCD peripheral.
 #define lcdRS                   (4)
