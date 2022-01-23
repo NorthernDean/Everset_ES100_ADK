@@ -79,7 +79,7 @@ void ES100::_I2Cwrite(uint8_t addr, uint8_t numBytes, uint8_t *ptr)
 			Serial.println(d, HEX);
 		#endif
 	}
-	
+
 	Wire.endTransmission();
 }
 
@@ -89,7 +89,7 @@ void ES100::_I2Cread(uint8_t addr, uint8_t numBytes, uint8_t *ptr)
 		Serial.print("i2c read addr: 0x");
 		Serial.println(addr, HEX);
 	#endif
-	
+
 	int i;
 	const uint8_t stopFlag = 1;
 
@@ -149,13 +149,13 @@ uint8_t ES100::_readRegister(uint8_t addr)
  ******************************************************************************/
 void ES100::begin(uint8_t int_pin, uint8_t en_pin)
 {
-	#ifdef DEBUG 
+	#ifdef DEBUG
 		Serial.println(F("ES100::begin"));
 	#endif
-	
+
 	_int_pin = int_pin;
 	pinMode(_int_pin, INPUT);
-	
+
 	_en_pin  = en_pin;
 	pinMode(_en_pin, OUTPUT);
 	digitalWrite(_en_pin, LOW);
@@ -167,8 +167,8 @@ uint8_t ES100::getDeviceID()
 	#ifdef DEBUG
 		Serial.println(F("ES100::getDeviceID"));
 	#endif
-	
-	uint8_t devID = _readRegister(ES100_DEVICE_ID_REG); 
+
+	uint8_t devID = _readRegister(ES100_DEVICE_ID_REG);
 	return devID;
 }
 
@@ -237,8 +237,8 @@ uint8_t ES100::getAntenna()
 	#ifdef DEBUG
 		Serial.println(F("ES100::getAntenna"));
 	#endif
-	
-	return (_readRegister(ES100_STATUS0_REG) & B00000010) >> 1;	
+
+	return (_readRegister(ES100_STATUS0_REG) & B00000010) >> 1;
 }
 
 uint8_t ES100::getLeapSecond()
@@ -246,8 +246,8 @@ uint8_t ES100::getLeapSecond()
 	#ifdef DEBUG
 		Serial.println(F("ES100::getLeapSecond"));
 	#endif
-	
-	return (_readRegister(ES100_STATUS0_REG) & B00011000) >> 3;	
+
+	return (_readRegister(ES100_STATUS0_REG) & B00011000) >> 3;
 }
 
 uint8_t ES100::getDstState()
@@ -255,8 +255,8 @@ uint8_t ES100::getDstState()
 	#ifdef DEBUG
 		Serial.println(F("ES100::getDstState"));
 	#endif
-	
-	return (_readRegister(ES100_STATUS0_REG) & B01100000) >> 5;	
+
+	return (_readRegister(ES100_STATUS0_REG) & B01100000) >> 5;
 }
 
 uint8_t ES100::getTracking()
@@ -264,8 +264,8 @@ uint8_t ES100::getTracking()
 	#ifdef DEBUG
 		Serial.println(F("ES100::getTracking"));
 	#endif
-	
-	return (_readRegister(ES100_STATUS0_REG) & B10000000) >> 7;	
+
+	return (_readRegister(ES100_STATUS0_REG) & B10000000) >> 7;
 }
 
 uint8_t	ES100::getIRQStatus()
@@ -273,7 +273,7 @@ uint8_t	ES100::getIRQStatus()
 	#ifdef DEBUG
 		Serial.println(F("ES100::getIRQStatus"));
 	#endif
-	
+
 	return _readRegister(ES100_IRQ_STATUS_REG);
 }
 
@@ -282,7 +282,7 @@ ES100Data ES100::getData()
 	#ifdef DEBUG
 		Serial.println(F("ES100::getData"));
 	#endif
-	
+
 	ES100Data data;
 
 	data.timerValue = timerValue;
@@ -303,17 +303,17 @@ void ES100::enable()
 {
 	// Set the IRQ pin LOW to be able to wait until the ES100 makes it high when ready
 	digitalWrite(_int_pin, LOW);
-	
+
 	#ifdef DEBUG
 		Serial.print(F("ES100::enable..."));
 	#endif
 
 	// Set enable pin HIGH to enable the device
 	digitalWrite(_en_pin, HIGH);
-	
+
 	// Wait for the ES100 to be ready
 	while (!digitalRead(_int_pin)) {
-		
+
 	}
 	delay(40);
 	#ifdef DEBUG
