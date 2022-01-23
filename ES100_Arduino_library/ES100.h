@@ -88,7 +88,8 @@ class ES100
 		uint8_t 		getLeapSecond();
 		uint8_t 		getDstState();
 		uint8_t 		getTracking();
-		
+		uint8_t			getControl0();
+
 
 	private:
 		uint8_t			_int_pin;

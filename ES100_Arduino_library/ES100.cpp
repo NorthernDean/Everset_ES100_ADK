@@ -352,3 +352,12 @@ void ES100::stopRx()
 	#endif
 	_writeRegister(ES100_CONTROL0_REG, 0x00);
 }
+
+uint8_t ES100::getControl0()
+{
+	#ifdef DEBUG
+		Serial.println("ES100::Control0");
+	#endif
+
+	return _readRegister(ES100_CONTROL0_REG);
+}
