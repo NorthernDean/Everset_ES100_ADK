@@ -429,7 +429,6 @@ clearLine(unsigned int n) {
 
 void
 showlcd() {
-  char        StringBuffer[MAX_LCD_STRING_SIZE+10];
   char        ReceiveIconChar;
   static int  ReceiveIconCounter;
 
