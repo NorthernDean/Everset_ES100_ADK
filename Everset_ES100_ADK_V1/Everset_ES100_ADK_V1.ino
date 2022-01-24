@@ -220,6 +220,10 @@ ES100DateTime SavedDateTime;
 ES100Status0  SavedStatus0;
 ES100NextDst  SavedNextDst;
 
+char  StringBuffer[MAX_STRING_SIZE+10];
+
+char  ReturnValue[MAX_LCD_STRING_SIZE+10];
+
 
 void
 atomic() {
@@ -238,7 +242,6 @@ atomic() {
 
 char *
 getISODateStr() {
-  static char  ReturnValue[MAX_LCD_STRING_SIZE+10];
   Time TimeValue;
 
 
@@ -253,7 +256,6 @@ getISODateStr() {
 
 char *
 getDST() {
-  static char  ReturnValue[MAX_LCD_STRING_SIZE+10];
   char *DstThisMonth;
 
 
@@ -289,7 +291,6 @@ displayDST() {
 
 char *
 getNDST () {
-  static char  ReturnValue[MAX_LCD_STRING_SIZE+10];
 
   //                                                   11111111112
   //                                          12345678901234567890
@@ -309,7 +310,6 @@ displayNDST() {
 
 char *
 getLeapSecond() {
-  static char  ReturnValue[MAX_LCD_STRING_SIZE+10];
   char *TypeThisMonth;
 
 
@@ -342,9 +342,6 @@ displayLeapSecond() {
 
 char *
 getLastSync () {
-  static char  ReturnValue[MAX_LCD_STRING_SIZE+10];
-
-
   if (LastSyncMillis > 0) {
     int days =    (millis() - LastSyncMillis) / 86400000;
     int hours =   ((millis() - LastSyncMillis) % 86400000) / 3600000;
@@ -375,9 +372,6 @@ displayLastSync() {
 
 char *
 getInterrupt () {
-  static char  ReturnValue[MAX_LCD_STRING_SIZE+10];
-
-
   //                                                   11111111112
   //                                          12345678901234567890
   //                                          IRQ count nnnnn
@@ -395,7 +389,6 @@ displayInterrupt() {
 
 char *
 getAntenna () {
-  static char  ReturnValue[MAX_LCD_STRING_SIZE+10];
   char *AntennaUsed;
 
 
@@ -569,7 +562,6 @@ showlcd() {
 
 void
 setup() {
-  char  StringBuffer[MAX_STRING_SIZE+10];
 
 
   Wire.begin();
@@ -641,7 +633,6 @@ setup() {
 
 void
 loop() {
-  char  StringBuffer[MAX_STRING_SIZE+10];
   Time  TimeValue;
   unsigned long NowMillis;
   uint8_t       IRQStatus;
