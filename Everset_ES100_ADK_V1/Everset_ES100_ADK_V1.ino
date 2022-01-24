@@ -602,10 +602,10 @@ setup() {
   //          [vn.m yyyy-mm-dd]
   // If VERSION or ISSUE is 2 digits,
   // will spill a bit to the right, boo hoo.
-  lcd.setCursor(0,1);
+  lcd.setCursor(0,0);
   lcd.print(" Everset ES100 ADK  ");
 
-  lcd.setCursor(0,2);
+  lcd.setCursor(0,1);
   snprintf(StringBuffer, MAX_STRING_SIZE, " [v%d.%d %s] %c", VERSION, ISSUE, ISSUE_DATE, CG_ANTENNA);
   lcd.print(StringBuffer);
 
