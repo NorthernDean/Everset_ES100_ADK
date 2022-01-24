@@ -436,9 +436,47 @@ clearLine(unsigned int n) {
 
 void
 showlcd() {
+  char        StringBuffer[MAX_LCD_STRING_SIZE+10];
+  char        ReceiveIconChar;
+  static int  ReceiveIconCounter;
+
+  if  (InReceiveMode) {
+    switch (ReceiveIconCounter) {
+      case 0:
+        ReceiveIconChar = CG_RECEIVE1;
+        break;
+
+      case 1:
+        ReceiveIconChar = CG_RECEIVE2;
+        break;
+
+      case 2:
+        ReceiveIconChar = CG_RECEIVE3;
+        break;
+
+      case 3:
+        ReceiveIconChar = CG_RECEIVE4;
+        break;
+
+      case 4:
+        ReceiveIconChar = ' ';
+        break;
+
+      default:
+        ReceiveIconChar = '?';
+        break;
+    }
+    ReceiveIconCounter++;
+    if  (ReceiveIconCounter > NUM_RECEIVE_ICONS)
+      ReceiveIconCounter = 0;
+  } else {
+    ReceiveIconChar = ' ';
+    ReceiveIconCounter = 0;
+  }
+
   lcd.setCursor(0,0);
-  lcd.print(getISODateStr());
-  // lcd.print("Z");
+  snprintf(StringBuffer, MAX_STRING_SIZE, "%s%c", getISODateStr(), ReceiveIconChar);
+  lcd.print(StringBuffer);
 
   if (ValidDecode) {
     // Scroll lines every 5 seconds.
