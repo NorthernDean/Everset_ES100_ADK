@@ -614,7 +614,6 @@ setup() {
   lcd.print(" Everset ES100 ADK  ");
 
   lcd.setCursor(0,2);
-  snprintf(StringBuffer, MAX_STRING_SIZE, " [v%d.%d %s]", VERSION, ISSUE, ISSUE_DATE);
   snprintf(StringBuffer, MAX_STRING_SIZE, " [v%d.%d %s] %c", VERSION, ISSUE, ISSUE_DATE, CG_ANTENNA);
   lcd.print(StringBuffer);
 
