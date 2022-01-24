@@ -75,6 +75,126 @@ POSSIBILITY OF SUCH DAMAGE.
 #define lcdD7                   (11)
 LiquidCrystal lcd(lcdRS, lcdEN, lcdD4, lcdD5, lcdD6, lcdD7);
 
+/*
+  Characters are specified in strings as \nnn (octal) or \xnn (hex)
+  We avoid using 0x00 because it conflicts with the NUL character which
+  terminates a string.  We could work around it, but then we couldn't
+  include it in saved, copied & printed strings.
+
+      0x00        0x01        0x02        0x03        0x04        0x05
+     unused     receive1    receive2    receive3    receive4    antennna
+    ........    ........    ........    ........    ...*....    ........
+    ........    ........    ........    ...*....    .....*..    ........
+    ........    ........    ...*....    .....*..    ......*.    ...*****
+    ........    ...*....    .....*..    ......*.    .......*    ...*.*.*
+    ........    .....*..    ......*.    .......*    .......*    ....*.*.
+    ........    ......*.    .......*    .......*    ........    .....*..
+    ........    .......*    .......*    ........    ........    .....*..
+    ........    ...*...*    ........    ........    ........    .....*..
+
+      0x06        0x07
+      check        no
+    ........    ...*..*.    ........    ........    ........    ........
+    ........    ...**.*.    ........    ........    ........    ........
+    ........    ...*.**.    ........    ........    ........    ........
+    ........    ...*..*.    ........    ........    ........    ........
+    .......*    .....**.    ........    ........    ........    ........
+    ......*.    ....*..*    ........    ........    ........    ........
+    ...*.*..    ....*..*    ........    ........    ........    ........
+    ....*...    .....**.    ........    ........    ........    ........
+
+*/
+
+#define CG_LINES_IN_CHAR  (8)
+
+#define CG_RECEIVE1       (1)
+byte    cg_receive1[CG_LINES_IN_CHAR] = {
+  0x00,
+  0x00,
+  0x00,
+  0x10,
+  0x04,
+  0x02,
+  0x01,
+  0x11
+};
+
+#define CG_RECEIVE2       (2)
+byte    cg_receive2[CG_LINES_IN_CHAR] = {
+  0x00,
+  0x00,
+  0x10,
+  0x04,
+  0x02,
+  0x01,
+  0x01,
+  0x00
+};
+
+#define CG_RECEIVE3       (3)
+byte    cg_receive3[CG_LINES_IN_CHAR] = {
+
+  0x00,
+  0x10,
+  0x04,
+  0x02,
+  0x01,
+  0x01,
+  0x00,
+  0x00
+};
+
+#define CG_RECEIVE4       (4)
+byte    cg_receive4[CG_LINES_IN_CHAR] = {
+  0x10,
+  0x04,
+  0x02,
+  0x01,
+  0x01,
+  0x00,
+  0x00,
+  0x00
+};
+
+#define NUM_RECEIVE_ICONS (CG_RECEIVE4)
+
+#define CG_ANTENNA        (5)
+byte    cg_antenna[CG_LINES_IN_CHAR] = {
+  0x00,
+  0x00,
+  0x1F,
+  0x15,
+  0x0A,
+  0x04,
+  0x04,
+  0x04
+};
+
+#define CG_CHECK          (6)
+byte    cg_check[CG_LINES_IN_CHAR] = {
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x01,
+  0x02,
+  0x14,
+  0x08
+};
+
+#define CG_NO             (6)
+byte    cg_no[CG_LINES_IN_CHAR] = {
+  0x12,
+  0x1A,
+  0x16,
+  0x12,
+  0x06,
+  0x09,
+  0x09,
+  0x06
+};
+
+
 // Define the DS3231 RTC peripheral.
 DS3231 rtc(SDA, SCL);
 
@@ -437,6 +557,13 @@ setup() {
   Serial.println(StringBuffer);
   Serial.println();
 
+  lcd.createChar(CG_RECEIVE1, cg_receive1);
+  lcd.createChar(CG_RECEIVE2, cg_receive2);
+  lcd.createChar(CG_RECEIVE3, cg_receive3);
+  lcd.createChar(CG_RECEIVE4, cg_receive4);
+  lcd.createChar(CG_ANTENNA,  cg_antenna);
+  lcd.createChar(CG_CHECK,    cg_check);
+  lcd.createChar(CG_NO,       cg_no);
   lcd.begin(20, 4);
   lcd.clear();
   //                  11111111112
@@ -450,7 +577,13 @@ setup() {
 
   lcd.setCursor(0,2);
   snprintf(StringBuffer, MAX_STRING_SIZE, " [v%d.%d %s]", VERSION, ISSUE, ISSUE_DATE);
+  snprintf(StringBuffer, MAX_STRING_SIZE, " [v%d.%d %s] %c", VERSION, ISSUE, ISSUE_DATE, CG_ANTENNA);
   lcd.print(StringBuffer);
+
+//  lcd.setCursor(0,3);
+//  snprintf(StringBuffer, MAX_STRING_SIZE, " %c %c %c %c %c %c %c", 
+//            CG_RECEIVE1, CG_RECEIVE2, CG_RECEIVE3, CG_RECEIVE4, CG_ANTENNA, CG_CHECK, CG_NO);
+//  lcd.print(StringBuffer);
 
   delay(5000);
 
