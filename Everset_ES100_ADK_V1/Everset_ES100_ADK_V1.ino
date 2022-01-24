@@ -310,25 +310,25 @@ displayNDST() {
 
 char *
 getLeapSecond() {
-  char *TypeThisMonth;
+  char TypeThisMonth;
 
 
   switch (SavedStatus0.leapSecond) {
     case B00:
-      TypeThisMonth = "NoLeapSec";
+      TypeThisMonth = CG_NO;
       break;
     case B10:
-      TypeThisMonth = "LeapSec- ";
+      TypeThisMonth = '-';
       break;
     case B11:
-      TypeThisMonth = "LeapSec+ ";
+      TypeThisMonth = '+';
       break;
   }
 
   //                                                   11111111112
   //                                          12345678901234567890
-  //                                          NoLeapSec this month
-  snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "%s this month", TypeThisMonth);
+  //                                          NoLeapSecX
+  snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "LeapSec%s", TypeThisMonth);
 
   return ReturnValue;
 }
@@ -374,8 +374,8 @@ char *
 getInterrupt () {
   //                                                   11111111112
   //                                          12345678901234567890
-  //                                          IRQ count nnnnn
-  snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "IRQ Count %5d", InterruptCount);
+  //                                          IRQs nnnnn
+  snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "IRQs %4d", InterruptCount);
 
   return ReturnValue;
 }
@@ -389,25 +389,25 @@ displayInterrupt() {
 
 char *
 getAntenna () {
-  char *AntennaUsed;
+  char AntennaUsed;
 
 
   switch (SavedStatus0.antenna) {
     case 0:
-      AntennaUsed = "1";
+      AntennaUsed = '1';
       break;
     case 1:
-      AntennaUsed = "2";
+      AntennaUsed = '2';
       break;
     default:
-      AntennaUsed = "?";
+      AntennaUsed = '?';
       break;
   }
 
   //                                                   11111111112
   //                                          12345678901234567890
-  //                                          Antenna ? used
-  snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "Antenna %s used", AntennaUsed);
+  //                                          X?
+  snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "%c%c", CG_ANTENNA, AntennaUsed);
 
   return ReturnValue;
 }
