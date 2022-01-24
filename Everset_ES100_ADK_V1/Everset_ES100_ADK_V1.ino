@@ -599,7 +599,7 @@ setup() {
   //                  11111111112
   //         12345678901234567890
   //          Everset ES100 ADK
-  //           vn.m yyyy-mm-dd
+  //          [vn.m yyyy-mm-dd]
   // If VERSION or ISSUE is 2 digits,
   // will spill a bit to the right, boo hoo.
   lcd.setCursor(0,1);
