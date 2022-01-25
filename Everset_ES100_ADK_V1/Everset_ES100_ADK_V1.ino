@@ -219,8 +219,8 @@ atomic() {
   // Got a interrupt and store the currect millis for future use if we have a valid decode
   AtomicMillis = millis();
 
-  // Wrap interrupt count at 9999.
-  if  (InterruptCount<9999)
+  // Hold interrupt count at 10000.
+  if  (InterruptCount<10000)
     InterruptCount++;
   else
     InterruptCount=0;
