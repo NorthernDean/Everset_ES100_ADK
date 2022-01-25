@@ -46,8 +46,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 
 #define VERSION                 (0)
-#define ISSUE                   (9)
-#define ISSUE_DATE              "2022-01-24"
+#define ISSUE                   (10)
+#define ISSUE_DATE              "2022-01-25"
 
 #define CONTINUOUS_MODE         (true)
 
