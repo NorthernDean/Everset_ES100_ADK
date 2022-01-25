@@ -233,6 +233,9 @@ getISODateStr() {
   Time TimeValue;
 
 
+  //                                                   11111111112
+  //                                          12345678901234567890
+  //                                          YYYY-MM-DD HH:MM:SS
   TimeValue=rtc.getTime();
   snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "%4.4d-%2.2d-%2.2d %2.2d:%2.2d:%2.2d",
           TimeValue.year, TimeValue.mon, TimeValue.date, TimeValue.hour, TimeValue.min, TimeValue.sec);
