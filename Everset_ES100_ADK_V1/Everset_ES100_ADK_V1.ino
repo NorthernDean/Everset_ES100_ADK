@@ -63,7 +63,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define CONTINUOUS_RETRY_MILLIS ((unsigned long) (CONTINUOUS_RETRY_HOURS) * (unsigned long) (MILLIS_PER_HOUR))
 
 // Define these up by one character to ensure space for NUL.
-#define MAX_STRING_SIZE         (61)
+#define MAX_STRING_SIZE         (41)
 #define MAX_LCD_STRING_SIZE     (21)
 
 // Define the 4 line x 20 chars/line LCD peripheral.
@@ -415,7 +415,10 @@ setup() {
   Serial.println();
   Serial.println("-------------------------");
 
-  snprintf(StringBuffer, MAX_STRING_SIZE, "Everset ES100 ADK [v%d.%d %s] startup", VERSION, ISSUE, ISSUE_DATE);
+  //                                                11111111112222222222333333333344444444445555555555
+  //                                       12345678901234567890123456789012345678901234567890123456789
+  //                                       Everset ES100 ADK [vnn.mm YYYY-MM-DD]
+  snprintf(StringBuffer, MAX_STRING_SIZE, "Everset ES100 ADK [v%d.%d %s]", VERSION, ISSUE, ISSUE_DATE);
   Serial.println(StringBuffer);
 
   Serial.println("-------------------------");
@@ -424,10 +427,10 @@ setup() {
   if  (CONTINUOUS_MODE) {
     //                                                11111111112222222222333333333344444444445555555555
     //                                       12345678901234567890123456789012345678901234567890123456789
-    //                                       Continuous mode enabled, interval approx. nn hour(s).
-    snprintf(StringBuffer, MAX_STRING_SIZE, "Continuous mode enabled, interval approx. %2d hour(s).", CONTINUOUS_RETRY_HOURS);
+    //                                       Continuous enabled, intrvl nn hour(s).
+    snprintf(StringBuffer, MAX_STRING_SIZE, "Continuous enabled, intrvl %2d hour(s).", CONTINUOUS_RETRY_HOURS);
   } else {
-    snprintf(StringBuffer, MAX_STRING_SIZE, "Continuous mode disabled.");
+    snprintf(StringBuffer, MAX_STRING_SIZE, "Continuous disabled.");
   }
   Serial.println(StringBuffer);
   Serial.println();
@@ -489,7 +492,10 @@ loop() {
 
     Serial.println();
     TimeValue=rtc.getTime();
-    snprintf(StringBuffer, MAX_STRING_SIZE, "Activate receive mode at %s UTC.", getISODateStr());
+    //                                                11111111112222222222333333333344444444445555555555
+    //                                       12345678901234567890123456789012345678901234567890123456789
+    //                                       Start receive @ YYYY-MM-DD HH:MM:SS UTC
+    snprintf(StringBuffer, MAX_STRING_SIZE, "Start receive @ %s UTC.", getISODateStr());
     Serial.println(StringBuffer);
 
     es100.enable();
@@ -516,16 +522,23 @@ loop() {
     IRQStatus = es100.getIRQStatus();
     RxOk = es100.getRxOk();
 
-    snprintf(StringBuffer, MAX_STRING_SIZE, "Control0=0x%2.2X, IRQStatus=0x%2.2X, RxOk=0x%2.2X", Control0, IRQStatus, RxOk);
+    //                                                11111111112222222222333333333344444444445555555555
+    //                                       12345678901234567890123456789012345678901234567890123456789
+    //                                       Control0=0xHH IRQStatus=0xHH RxOk=0xHH
+    snprintf(StringBuffer, MAX_STRING_SIZE, "Control0=0x%2.2X IRQStatus=0x%2.2X RxOk=0x%2.2X", Control0, IRQStatus, RxOk);
     Serial.println(StringBuffer);
 
-    snprintf(StringBuffer, MAX_STRING_SIZE, "ES100 IRQ %5d: ", InterruptCount);
+    //                                                11111111112222222222333333333344444444445555555555
+    //                                       12345678901234567890123456789012345678901234567890123456789
+    //                                       IRQ nnnnn: data@YYYY-MM-DD HH:MM:SS UTC.
+    //                                       IRQ nnnnn: none@YYYY-MM-DD HH:MM:SS UTC.
+    snprintf(StringBuffer, MAX_STRING_SIZE, "IRQ %5d: ", InterruptCount);
     // Add more on the end of that line.
 
     if (IRQStatus == 0x01 && RxOk == 0x01) {
       ValidDecode = true;
 
-      strncat(StringBuffer, "has data at ", MAX_STRING_SIZE);
+      strncat(StringBuffer, "data@", MAX_STRING_SIZE);
       strncat(StringBuffer, getISODateStr(), MAX_STRING_SIZE);
       strncat(StringBuffer, " UTC.", MAX_STRING_SIZE);
       Serial.println(StringBuffer);
@@ -541,11 +554,17 @@ loop() {
       SavedNextDst = es100.getNextDst();
 
 /* DEBUG */
-      snprintf(StringBuffer, MAX_STRING_SIZE, "status: rxOk     0x%2.2X, antenna  0x%2.2X, leapSecond 0x%2.2X",
+      //                                                11111111112222222222333333333344444444445555555555
+      //                                       12345678901234567890123456789012345678901234567890123456789
+      //                                       status: rxOk=0xHH ant=0xHH leap=0xHH
+      snprintf(StringBuffer, MAX_STRING_SIZE, "status: rxOk=0x%2.2X ant=0x%2.2X leap=0x%2.2X",
                 SavedStatus0.rxOk, SavedStatus0.antenna, SavedStatus0.leapSecond, SavedStatus0.dstState, SavedStatus0.tracking);
       Serial.println(StringBuffer);
 
-      snprintf(StringBuffer, MAX_STRING_SIZE, "        dstState 0x%2.2X, tracking 0x%2.2X",
+      //                                                11111111112222222222333333333344444444445555555555
+      //                                       12345678901234567890123456789012345678901234567890123456789
+      //                                               dstState=0xHH track=0xHH
+      snprintf(StringBuffer, MAX_STRING_SIZE, "        dstState=0x%2.2X, track=0x%2.2X",
                 SavedStatus0.rxOk, SavedStatus0.antenna, SavedStatus0.leapSecond, SavedStatus0.dstState, SavedStatus0.tracking);
       Serial.println(StringBuffer);
 /* END DEBUG */
@@ -567,7 +586,7 @@ loop() {
       InReceiveMode = false;
     }
     else {
-      strncat(StringBuffer, "no data at ", MAX_STRING_SIZE);
+      strncat(StringBuffer, "none@", MAX_STRING_SIZE);
       strncat(StringBuffer, getISODateStr(), MAX_STRING_SIZE);
       strncat(StringBuffer, " UTC.", MAX_STRING_SIZE);
       Serial.println(StringBuffer);
@@ -586,7 +605,10 @@ loop() {
     TriggerReceiveMode = (!CONTINUOUS_MODE && (!InReceiveMode && TimeValue.hour == 4 && TimeValue.min == 0)) ||
                           (CONTINUOUS_MODE && (!InReceiveMode && (LastSyncMillis+CONTINUOUS_RETRY_MILLIS) < NowMillis));
     if  (!LastTriggerValue && TriggerReceiveMode) {
-      snprintf(StringBuffer, MAX_STRING_SIZE, "Triggering receive mode at %s UTC.", getISODateStr());
+      //                                                11111111112222222222333333333344444444445555555555
+      //                                       12345678901234567890123456789012345678901234567890123456789
+      //                                       Trigger receive@YYYY-MM-DD HH:MM:SS UTC.
+      snprintf(StringBuffer, MAX_STRING_SIZE, "Trigger receive@%s UTC.", getISODateStr());
       Serial.println(StringBuffer);
       Serial.println();
     }
