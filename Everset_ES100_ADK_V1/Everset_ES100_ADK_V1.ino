@@ -402,8 +402,8 @@ setup() {
   Serial.println();
   Serial.println("-------------------------");
 
-  //                                                11111111112222222222333333333344444444445555555555
-  //                                       12345678901234567890123456789012345678901234567890123456789
+  //                                                1111111111222222222233333333334
+  //                                       1234567890123456789012345678901234567890
   //                                       Everset ES100 ADK [vnn.mm YYYY-MM-DD]
   snprintf(StringBuffer, MAX_STRING_SIZE, "Everset ES100 ADK [v%d.%d %s]", VERSION, ISSUE, ISSUE_DATE);
   Serial.println(StringBuffer);
@@ -412,8 +412,8 @@ setup() {
   Serial.println();
 
   if  (CONTINUOUS_MODE) {
-    //                                                11111111112222222222333333333344444444445555555555
-    //                                       12345678901234567890123456789012345678901234567890123456789
+    //                                                1111111111222222222233333333334
+    //                                       1234567890123456789012345678901234567890
     //                                       Continuous enabled, intrvl nn hour(s).
     snprintf(StringBuffer, MAX_STRING_SIZE, "Continuous enabled, intrvl %2d hour(s).", CONTINUOUS_RETRY_HOURS);
   } else {
@@ -478,8 +478,8 @@ loop() {
 
     Serial.println();
     TimeValue=rtc.getTime();
-    //                                                11111111112222222222333333333344444444445555555555
-    //                                       12345678901234567890123456789012345678901234567890123456789
+    //                                                1111111111222222222233333333334
+    //                                       1234567890123456789012345678901234567890
     //                                       Start receive @ YYYY-MM-DD HH:MM:SS UTC
     snprintf(StringBuffer, MAX_STRING_SIZE, "Start receive @ %s UTC.", getISODateStr());
     Serial.println(StringBuffer);
@@ -508,14 +508,14 @@ loop() {
     IRQStatus = es100.getIRQStatus();
     RxOk = es100.getRxOk();
 
-    //                                                11111111112222222222333333333344444444445555555555
-    //                                       12345678901234567890123456789012345678901234567890123456789
+    //                                                1111111111222222222233333333334
+    //                                       1234567890123456789012345678901234567890
     //                                       Control0=0xHH IRQStatus=0xHH RxOk=0xHH
     snprintf(StringBuffer, MAX_STRING_SIZE, "Control0=0x%2.2X IRQStatus=0x%2.2X RxOk=0x%2.2X", Control0, IRQStatus, RxOk);
     Serial.println(StringBuffer);
 
-    //                                                11111111112222222222333333333344444444445555555555
-    //                                       12345678901234567890123456789012345678901234567890123456789
+    //                                                1111111111222222222233333333334
+    //                                       1234567890123456789012345678901234567890
     //                                       IRQ nnnnn: data@YYYY-MM-DD HH:MM:SS UTC.
     //                                       IRQ nnnnn: none@YYYY-MM-DD HH:MM:SS UTC.
     snprintf(StringBuffer, MAX_STRING_SIZE, "IRQ %5d: ", InterruptCount);
@@ -540,15 +540,15 @@ loop() {
       SavedNextDst = es100.getNextDst();
 
 /* DEBUG */
-      //                                                11111111112222222222333333333344444444445555555555
-      //                                       12345678901234567890123456789012345678901234567890123456789
+      //                                                1111111111222222222233333333334
+      //                                       1234567890123456789012345678901234567890
       //                                       status: rxOk=0xHH ant=0xHH leap=0xHH
       snprintf(StringBuffer, MAX_STRING_SIZE, "status: rxOk=0x%2.2X ant=0x%2.2X leap=0x%2.2X",
                 SavedStatus0.rxOk, SavedStatus0.antenna, SavedStatus0.leapSecond, SavedStatus0.dstState, SavedStatus0.tracking);
       Serial.println(StringBuffer);
 
-      //                                                11111111112222222222333333333344444444445555555555
-      //                                       12345678901234567890123456789012345678901234567890123456789
+      //                                                1111111111222222222233333333334
+      //                                       1234567890123456789012345678901234567890
       //                                               dstState=0xHH track=0xHH
       snprintf(StringBuffer, MAX_STRING_SIZE, "        dstState=0x%2.2X, track=0x%2.2X",
                 SavedStatus0.rxOk, SavedStatus0.antenna, SavedStatus0.leapSecond, SavedStatus0.dstState, SavedStatus0.tracking);
@@ -582,8 +582,8 @@ loop() {
     TriggerReceiveMode = (!CONTINUOUS_MODE && (!InReceiveMode && TimeValue.hour == 4 && TimeValue.min == 0)) ||
                           (CONTINUOUS_MODE && (!InReceiveMode && (LastSyncMillis+CONTINUOUS_RETRY_MILLIS) < NowMillis));
     if  (!LastTriggerValue && TriggerReceiveMode) {
-      //                                                11111111112222222222333333333344444444445555555555
-      //                                       12345678901234567890123456789012345678901234567890123456789
+      //                                                1111111111222222222233333333334
+      //                                       1234567890123456789012345678901234567890
       //                                       Trigger receive@YYYY-MM-DD HH:MM:SS UTC.
       snprintf(StringBuffer, MAX_STRING_SIZE, "Trigger receive@%s UTC.", getISODateStr());
       Serial.println(StringBuffer);
