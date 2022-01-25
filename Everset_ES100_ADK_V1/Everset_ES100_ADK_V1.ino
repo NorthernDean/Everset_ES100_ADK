@@ -314,16 +314,16 @@ showlcd() {
     int minutes = (((millis() - LastSyncMillis) % 86400000) % 3600000) / 60000;
     int seconds = ((((millis() - LastSyncMillis) % 86400000) % 3600000) % 60000) / 1000;
 
-    //                                                   11111111112
-    //                                          12345678901234567890
-    //                                          Last DdHHhMMmSSs  X?
+    //                                                    11111111112
+    //                                           12345678901234567890
+    //                                           Last DdHHhMMmSSs  X?
     snprintf(StringBuffer, MAX_LCD_STRING_SIZE, "Last%2dd%2.2dh%2.2dm%2.2ds  %c%c",
             days, hours, minutes, seconds, CG_ANTENNA, AntennaUsed);
   } else {
-    //                                                   11111111112
-    //                                          12345678901234567890
-    //                                          Last ----         X?
-    snprintf(StringBuffer, MAX_LCD_STRING_SIZE, "Last ----         %c%c",
+    //                                                    11111111112
+    //                                           12345678901234567890
+    //                                           Last -d--h--m--s  X?
+    snprintf(StringBuffer, MAX_LCD_STRING_SIZE, "Last -d--h--m--s  %c%c",
             CG_ANTENNA, AntennaUsed);
   }
   lcd.print(StringBuffer);
