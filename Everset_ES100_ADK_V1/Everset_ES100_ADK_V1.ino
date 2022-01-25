@@ -253,185 +253,26 @@ getISODateStr() {
 }
 
 // ******************
-
-char *
-getDST() {
-  char *DstThisMonth;
-
-
-  switch (SavedStatus0.dstState) {
-    case B00:
-      DstThisMonth = "NOT in Effect";
-      break;
-    case B10:
-      DstThisMonth = "BEGINS Today";
-      break;
-    case B11:
-      DstThisMonth = "YES in Effect";
-      break;
-    case B01:
-      DstThisMonth = "ENDS Today";
-      break;
-  }
-
-  //                                                   11111111112
-  //                                          12345678901234567890
-  //                                          DST NOT in Effect
-  snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "DST %s", DstThisMonth);
-
-  return ReturnValue;
-}
-
-void
-displayDST() {
-  lcd.print(getDST());
-}
-
-// ******************
-
-char *
-getNDST () {
-
-  //                                                   11111111112
-  //                                          12345678901234567890
-  //                                          DSTChg mm-dd @ hh:00
-  snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "DSTChg %2.2d-%2.2d @ %2.2dh00",
-            SavedNextDst.month, SavedNextDst.day, SavedNextDst.hour);
-
-  return ReturnValue;
-}
-
-void
-displayNDST() {
-  lcd.print(getNDST());
-}
-
-// ******************
-
-char *
-getLeapSecond() {
-  char TypeThisMonth;
-
-
-  switch (SavedStatus0.leapSecond) {
-    case B00:
-      TypeThisMonth = CG_NO;
-      break;
-    case B10:
-      TypeThisMonth = '-';
-      break;
-    case B11:
-      TypeThisMonth = '+';
-      break;
-  }
-
-  //                                                   11111111112
-  //                                          12345678901234567890
-  //                                          NoLeapSecX
-  snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "LeapSec%s", TypeThisMonth);
-
-  return ReturnValue;
-}
-
-void
-displayLeapSecond() {
-  lcd.print(getLeapSecond());
-}
-
-// ******************
-
-char *
-getLastSync () {
-  if (LastSyncMillis > 0) {
-    int days =    (millis() - LastSyncMillis) / 86400000;
-    int hours =   ((millis() - LastSyncMillis) % 86400000) / 3600000;
-    int minutes = (((millis() - LastSyncMillis) % 86400000) % 3600000) / 60000;
-    int seconds = ((((millis() - LastSyncMillis) % 86400000) % 3600000) % 60000) / 1000;
-
-    //                                                   11111111112
-    //                                          12345678901234567890
-    //                                          LastSync DdHHhMMmSSs
-    snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "LastSync%2dd%2.2dh%2.2dm%2.2ds",
-            days, hours, minutes, seconds);
-  } else {
-    //                                                   11111111112
-    //                                          12345678901234567890
-    //                                          LastSync no sync yet
-    snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "LastSync no sync yet");
-  }
-
-  return ReturnValue;
-}
-
-void
-displayLastSync() {
-  lcd.print(getLastSync());
-}
-
-// ******************
-
-char *
-getInterrupt () {
-  //                                                   11111111112
-  //                                          12345678901234567890
-  //                                          IRQs nnnnn
-  snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "IRQs %4d", InterruptCount);
-
-  return ReturnValue;
-}
-
-void
-displayInterrupt() {
-  lcd.print(getInterrupt());
-}
-
-// ******************
-
-char *
-getAntenna () {
-  char AntennaUsed;
-
-
-  switch (SavedStatus0.antenna) {
-    case 0:
-      AntennaUsed = '1';
-      break;
-    case 1:
-      AntennaUsed = '2';
-      break;
-    default:
-      AntennaUsed = '?';
-      break;
-  }
-
-  //                                                   11111111112
-  //                                          12345678901234567890
-  //                                          X?
-  snprintf(ReturnValue, MAX_LCD_STRING_SIZE, "%c%c", CG_ANTENNA, AntennaUsed);
-
-  return ReturnValue;
-}
-
-void
-displayAntenna() {
-  lcd.print(getAntenna());
-}
-
-// ******************
-
-void
-clearLine(unsigned int n) {
-  while (n-- > 0)
-    lcd.print(" ");
-}
-
-// ******************
-
+//          11111111112
+// 12345678901234567890
+// YYYY-MM-DD HH:MM:SSX   Line 1 - Current Date & Time, Receive Active Indicator
+// Last DdHHhMMmSSs  X?   Line 2 - Time since Last Sync, Antenna symbol & number
+// DSTstart Chgmm-dd@HH   Line 3 - DST status (start, end, yes, no), Date & Hour of next change
+// LSPx        IRQnnnnn   Line 4 - Leap Second Pending (x=+/-/NO), IRQs
+//
 void
 showlcd() {
   char        ReceiveIconChar;
   static int  ReceiveIconCounter;
+  char        *DstThisMonth;
+  char        TypeThisMonth;
+  char        AntennaUsed;
 
+
+//          11111111112
+// 12345678901234567890
+// YYYY-MM-DD HH:MM:SSX   Line 1 - Current Date & Time, Receive Active Indicator
+  lcd.setCursor(0,0);
   if  (InReceiveMode) {
     switch (ReceiveIconCounter) {
       case 0:
@@ -466,95 +307,109 @@ showlcd() {
     ReceiveIconCounter = 0;
   }
 
-  lcd.setCursor(0,0);
   snprintf(StringBuffer, MAX_STRING_SIZE, "%s%c", getISODateStr(), ReceiveIconChar);
   lcd.print(StringBuffer);
 
+  //          11111111112
+  // 12345678901234567890
+  // Last DdHHhMMmSSs  X?   Line 2 - Time since Last Sync, Antenna symbol & number
+  lcd.setCursor(0,1);
   if (ValidDecode) {
-    // Scroll lines every 5 seconds.
-    int lcdLine = (millis() / 5000 % 6) + 1;
-
-    lcd.setCursor(0,1);
-    clearLine(20);
-    lcd.setCursor(0,1);
-    switch (lcdLine) {
-      case 1:
-        displayInterrupt();
-        break;
-      case 2:
-        displayLastSync();
-        break;
-      case 3:
-        displayDST();
-        break;
-      case 4:
-        displayNDST();
-        break;
-      case 5:
-        displayLeapSecond();
-        break;
-      case 6:
-        displayAntenna();
-        break;
-    }
-
-    lcd.setCursor(0,2);
-    clearLine(20);
-    lcd.setCursor(0,2);
-    switch (lcdLine) {
-      case 6:
-        displayInterrupt();
+    switch (SavedStatus0.antenna) {
+      case 0:
+        AntennaUsed = '1';
         break;
       case 1:
-        displayLastSync();
+        AntennaUsed = '2';
         break;
-      case 2:
-        displayDST();
-        break;
-      case 3:
-        displayNDST();
-        break;
-      case 4:
-        displayLeapSecond();
-        break;
-      case 5:
-        displayAntenna();
+      default:
+        AntennaUsed = '?';
         break;
     }
-
-    lcd.setCursor(0,3);
-    clearLine(20);
-    lcd.setCursor(0,3);
-    switch (lcdLine) {
-      case 5:
-        displayInterrupt();
-        break;
-      case 6:
-        displayLastSync();
-        break;
-      case 1:
-        displayDST();
-        break;
-      case 2:
-        displayNDST();
-        break;
-      case 3:
-        displayLeapSecond();
-        break;
-      case 4:
-        displayAntenna();
-        break;
-    }
+  } else {
+    AntennaUsed = '-';
   }
-  else {
-    lcd.setCursor(0,1);
-    displayInterrupt();
-    lcd.setCursor(0,2);
-    clearLine(20);
-    lcd.setCursor(0,3);
-    clearLine(20);
 
+  if (LastSyncMillis > 0) {
+    int days =    (millis() - LastSyncMillis) / 86400000;
+    int hours =   ((millis() - LastSyncMillis) % 86400000) / 3600000;
+    int minutes = (((millis() - LastSyncMillis) % 86400000) % 3600000) / 60000;
+    int seconds = ((((millis() - LastSyncMillis) % 86400000) % 3600000) % 60000) / 1000;
+
+    //                                                   11111111112
+    //                                          12345678901234567890
+    //                                          Last DdHHhMMmSSs  X?
+    snprintf(StringBuffer, MAX_LCD_STRING_SIZE, "Last%2dd%2.2dh%2.2dm%2.2ds  %c%c",
+            days, hours, minutes, seconds, CG_ANTENNA, AntennaUsed);
+  } else {
+    //                                                   11111111112
+    //                                          12345678901234567890
+    //                                          Last ----         X?
+    snprintf(StringBuffer, MAX_LCD_STRING_SIZE, "Last ----         %c%c",
+            CG_ANTENNA, AntennaUsed);
   }
+  lcd.print(StringBuffer);
+
+  //          11111111112
+  // 12345678901234567890
+  // DSTstart Chgmm-dd@HH   Line 3 - DST status (start, end, yes, no), Date & Hour of next change
+  lcd.setCursor(0,2);
+  if  (ValidDecode) {
+    switch (SavedStatus0.dstState) {
+      case B00:
+        DstThisMonth = "no";
+        break;
+      case B10:
+        DstThisMonth = "start";
+        break;
+      case B11:
+        DstThisMonth = "yes";
+        break;
+      case B01:
+        DstThisMonth = "end";
+        break;
+      default:
+        DstThisMonth = "?";
+        break;
+    }
+    snprintf(StringBuffer, MAX_LCD_STRING_SIZE, "DST%s Chg@%2.2d-%2.2d@%2.2dh",
+              DstThisMonth, SavedNextDst.month, SavedNextDst.day, SavedNextDst.hour);
+  } else {
+    snprintf(StringBuffer, MAX_LCD_STRING_SIZE, "DST--- Chg@-----@--h",
+              DstThisMonth, SavedNextDst.month, SavedNextDst.day, SavedNextDst.hour);
+  }
+  lcd.print(StringBuffer);
+
+  //          11111111112
+  // 12345678901234567890
+  // LSPx         RXnnnnn   Line 4 - Leap Second Pending (x=+/-/NO), Failed Rxs
+  lcd.setCursor(0,3);
+  if  (ValidDecode) {
+    switch (SavedStatus0.leapSecond) {
+      case B00:
+        TypeThisMonth = CG_NO;
+        break;
+      case B10:
+        TypeThisMonth = '-';
+        break;
+      case B11:
+        TypeThisMonth = '+';
+        break;
+      default:
+        TypeThisMonth = '?';
+        break;
+    }
+  } else {
+    TypeThisMonth = '-';
+  }
+  if (InterruptCount<10000) {
+    snprintf(StringBuffer, MAX_LCD_STRING_SIZE, "LSP%c        IRQ %4d",
+              TypeThisMonth, InterruptCount);
+  } else {
+    snprintf(StringBuffer, MAX_LCD_STRING_SIZE, "LSP%c        IRQ>9999",
+              TypeThisMonth, InterruptCount);
+  }
+  lcd.print(StringBuffer);
 }
 
 // ******************
