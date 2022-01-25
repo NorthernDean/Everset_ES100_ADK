@@ -170,18 +170,6 @@ byte    cg_antenna[CG_LINES_IN_CHAR] = {
   0x04
 };
 
-#define CG_CHECK          (6)
-byte    cg_check[CG_LINES_IN_CHAR] = {
-  0x00,
-  0x00,
-  0x00,
-  0x00,
-  0x01,
-  0x02,
-  0x14,
-  0x08
-};
-
 #define CG_NO             (6)
 byte    cg_no[CG_LINES_IN_CHAR] = {
   0x12,
@@ -446,7 +434,6 @@ setup() {
   lcd.createChar(CG_RECEIVE3, cg_receive3);
   lcd.createChar(CG_RECEIVE4, cg_receive4);
   lcd.createChar(CG_ANTENNA,  cg_antenna);
-  lcd.createChar(CG_CHECK,    cg_check);
   lcd.createChar(CG_NO,       cg_no);
   lcd.begin(20, 4);
   lcd.clear();
@@ -463,10 +450,10 @@ setup() {
   snprintf(StringBuffer, MAX_STRING_SIZE, " [v%d.%d %s]", VERSION, ISSUE, ISSUE_DATE);
   lcd.print(StringBuffer);
 
-//  lcd.setCursor(0,3);
-//  snprintf(StringBuffer, MAX_STRING_SIZE, " %c %c %c %c %c %c %c", 
-//            CG_RECEIVE1, CG_RECEIVE2, CG_RECEIVE3, CG_RECEIVE4, CG_ANTENNA, CG_CHECK, CG_NO);
-//  lcd.print(StringBuffer);
+  lcd.setCursor(0,3);
+  snprintf(StringBuffer, MAX_STRING_SIZE, " %c %c %c %c %c %c",
+            CG_RECEIVE1, CG_RECEIVE2, CG_RECEIVE3, CG_RECEIVE4, CG_ANTENNA, CG_NO);
+  lcd.print(StringBuffer);
 
   delay(5000);
 
