@@ -470,7 +470,7 @@ loop() {
   unsigned long NowMillis;
   uint8_t       IRQStatus;
   uint8_t       RxOk;
-  uint8_t       Control0;
+  // uint8_t       Control0;
 
 
   if (!InReceiveMode && TriggerReceiveMode) {
@@ -504,14 +504,16 @@ loop() {
   if (LastInterruptCount < InterruptCount) {
     Serial.println();
 
-    Control0   = es100.getControl0();
+    // Control0   = es100.getControl0();
     IRQStatus = es100.getIRQStatus();
     RxOk = es100.getRxOk();
 
     //                                                1111111111222222222233333333334
     //                                       1234567890123456789012345678901234567890
     //                                       Control0=0xHH IRQStatus=0xHH RxOk=0xHH
-    snprintf(StringBuffer, MAX_STRING_SIZE, "Control0=0x%2.2X IRQStatus=0x%2.2X RxOk=0x%2.2X", Control0, IRQStatus, RxOk);
+    // snprintf(StringBuffer, MAX_STRING_SIZE, "Control0=0x%2.2X IRQStatus=0x%2.2X RxOk=0x%2.2X", Control0, IRQStatus, RxOk);
+    //                                       IRQStatus=0xHH RxOk=0xHH
+    snprintf(StringBuffer, MAX_STRING_SIZE, "IRQStatus=0x%2.2X RxOk=0x%2.2X", IRQStatus, RxOk);
     Serial.println(StringBuffer);
 
     //                                                1111111111222222222233333333334
