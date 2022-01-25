@@ -569,15 +569,6 @@ loop() {
       Serial.println(StringBuffer);
 /* END DEBUG */
 
-      Serial.println();
-      Serial.println(getDST());
-      Serial.println(getNDST());
-      Serial.println(getLeapSecond());
-      Serial.println(getLastSync());
-      Serial.println(getInterrupt());
-      Serial.println(getAntenna());
-      Serial.println();
-
       // Update LastSyncMillis for lcd display
       LastSyncMillis = millis();
 
