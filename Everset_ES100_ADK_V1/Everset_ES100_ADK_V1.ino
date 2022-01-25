@@ -330,30 +330,30 @@ showlcd() {
 
   //          11111111112
   // 12345678901234567890
-  // DSTstart Chgmm-dd@HH   Line 3 - DST status (start, end, yes, no), Date & Hour of next change
+  // DSTstartChgmm-dd@HHh   Line 3 - DST status (start, end, yes, no), Date & Hour of next change
   lcd.setCursor(0,2);
   if  (ValidDecode) {
     switch (SavedStatus0.dstState) {
       case B00:
-        DstThisMonth = "no";
+        DstThisMonth = "no   ";
         break;
       case B10:
         DstThisMonth = "start";
         break;
       case B11:
-        DstThisMonth = "yes";
+        DstThisMonth = "yes  ";
         break;
       case B01:
-        DstThisMonth = "end";
+        DstThisMonth = "end  ";
         break;
       default:
-        DstThisMonth = "?";
+        DstThisMonth = "?    ";
         break;
     }
-    snprintf(StringBuffer, MAX_LCD_STRING_SIZE, "DST%s Chg@%2.2d-%2.2d@%2.2dh",
+    snprintf(StringBuffer, MAX_LCD_STRING_SIZE, "DST%sChg%2.2d-%2.2d@%2.2dh",
               DstThisMonth, SavedNextDst.month, SavedNextDst.day, SavedNextDst.hour);
   } else {
-    snprintf(StringBuffer, MAX_LCD_STRING_SIZE, "DST--- Chg@-----@--h",
+    snprintf(StringBuffer, MAX_LCD_STRING_SIZE, "DST-----Chg-----@--h",
               DstThisMonth, SavedNextDst.month, SavedNextDst.day, SavedNextDst.hour);
   }
   lcd.print(StringBuffer);
