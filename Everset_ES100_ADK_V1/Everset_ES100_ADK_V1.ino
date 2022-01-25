@@ -243,7 +243,7 @@ showlcd() {
   char        ReceiveIconChar;
   static int  ReceiveIconCounter;
   char        *DstThisMonth;
-  char        TypeThisMonth;
+  char        *TypeThisMonth;
   char        AntennaUsed;
 
 
@@ -360,31 +360,31 @@ showlcd() {
 
   //          11111111112
   // 12345678901234567890
-  // LSPx         RXnnnnn   Line 4 - Leap Second Pending (x=+/-/NO), Failed Rxs
+  // LSPxx       IRQ>nnnn   Line 4 - Leap Second Pending (x=+/-/NO), Failed Rxs
   lcd.setCursor(0,3);
   if  (ValidDecode) {
     switch (SavedStatus0.leapSecond) {
       case B00:
-        TypeThisMonth = CG_NO;
+        TypeThisMonth = "no";
         break;
       case B10:
-        TypeThisMonth = '-';
+        TypeThisMonth = "- ";
         break;
       case B11:
-        TypeThisMonth = '+';
+        TypeThisMonth = "+ ";
         break;
       default:
-        TypeThisMonth = '?';
+        TypeThisMonth = "?";
         break;
     }
   } else {
-    TypeThisMonth = '-';
+    TypeThisMonth = "--";
   }
   if (InterruptCount<10000) {
-    snprintf(StringBuffer, MAX_LCD_STRING_SIZE, "LSP%c        IRQ %4d",
+    snprintf(StringBuffer, MAX_LCD_STRING_SIZE, "LSP%s       IRQ %4d",
               TypeThisMonth, InterruptCount);
   } else {
-    snprintf(StringBuffer, MAX_LCD_STRING_SIZE, "LSP%c        IRQ>9999",
+    snprintf(StringBuffer, MAX_LCD_STRING_SIZE, "LSP%s       IRQ>9999",
               TypeThisMonth, InterruptCount);
   }
   lcd.print(StringBuffer);
