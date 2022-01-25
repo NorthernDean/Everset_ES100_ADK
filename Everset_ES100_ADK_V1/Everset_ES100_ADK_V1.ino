@@ -5,7 +5,7 @@ the ES100MOD receiver module and shows several information on a 4x20
 character display. There are no function assignments for unused GPIO,
 analog inputs and the 3 push buttons included in this sketch.
 
-Version: 1 (10/04/2020)
+v0i11 of Dean Weiten revision 2022-01-25
 
 PLEASE FEEL FREE TO CONTRIBUTE TO THE DEVELOPMENT. CORRECTIONS AND
 ADDITIONS ARE HIGHLY APPRECIATED. SEND YOUR COMMENTS OR CODE TO:
@@ -46,7 +46,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 
 #define VERSION                 (0)
-#define ISSUE                   (10)
+#define ISSUE                   (11)
 #define ISSUE_DATE              "2022-01-25"
 
 #define CONTINUOUS_MODE         (true)
